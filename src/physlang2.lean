@@ -3,14 +3,10 @@ import .....phys.src.physlib2
 noncomputable theory
 
 
---7/16 (7/15) - OUR MAGIC NOTATION CANDIDATE LIST:
---
---https://www.caam.rice.edu/~heinken/latex/symbols.pdf
-
-
---7/14 why is aff_vec in this file? - needs to go
+/-
+VARIABLES
+-/
 mutual inductive
-	--variables
 	PhysSpaceVar,
 	EuclideanGeometry3SpaceVar,
 	ClassicalTimeSpaceVar,
@@ -19,6 +15,7 @@ mutual inductive
 	EuclideanGeometry3FrameVar,
 	ClassicalTimeFrameVar,
 	ClassicalVelocity3FrameVar,
+	PhysDimensionalVar,
 	RealScalarVar,
 	EuclideanGeometry3ScalarVar,
 	ClassicalTimeScalarVar,
@@ -48,6 +45,16 @@ with ClassicalTimeFrameVar : Type
 | mk : ℕ → ClassicalTimeFrameVar
 with ClassicalVelocity3FrameVar : Type
 | mk : ℕ → ClassicalVelocity3FrameVar
+with PhysDimensionalVar : Type
+| RealScalar : RealScalarVar → PhysDimensionalVar
+| EuclideanGeometry3Scalar : EuclideanGeometry3ScalarVar → PhysDimensionalVar
+| ClassicalTimeScalar : ClassicalTimeScalarVar → PhysDimensionalVar
+| ClassicalVelocity3Scalar : ClassicalVelocity3ScalarVar → PhysDimensionalVar
+| EuclideanGeometry3Vector : EuclideanGeometry3VectorVar → PhysDimensionalVar
+| ClassicalTimeVector : ClassicalTimeVectorVar → PhysDimensionalVar
+| ClassicalVelocity3Vector : ClassicalVelocity3VectorVar → PhysDimensionalVar
+| EuclideanGeometry3Point : EuclideanGeometry3PointVar → PhysDimensionalVar
+| ClassicalTimePoint : ClassicalTimePointVar → PhysDimensionalVar 
 with RealScalarVar : Type 
 | mk : ℕ → RealScalarVar
 with EuclideanGeometry3ScalarVar : Type 
@@ -67,8 +74,12 @@ with EuclideanGeometry3PointVar : Type
 with ClassicalTimePointVar : Type
 | mk : ℕ → ClassicalTimePointVar
 
+/-
+Physical quantity expressions
+-/
 mutual inductive
 	--dimensionful (or less) expressions
+	PhysDimensionalExpression,
 	RealScalarExpression, 
 	EuclideanGeometry3ScalarExpression, 
 	ClassicalTimeScalarExpression, 
@@ -79,6 +90,16 @@ mutual inductive
 	EuclideanGeometry3PointExpression, 
 	ClassicalTimePointExpression
 
+with PhysDimensionalExpression : Type
+| RealScalar : RealScalarExpression → PhysDimensionalExpression
+| EuclideanGeometry3ScalarExpression : EuclideanGeometry3ScalarExpression → PhysDimensionalExpression
+| ClassicalTimeScalar : ClassicalTimeScalarExpression → PhysDimensionalExpression
+| ClassicalVelocity3Scalar : ClassicalVelocity3ScalarExpression → PhysDimensionalExpression
+| EuclideanGeometry3Vector : EuclideanGeometry3VectorExpression → PhysDimensionalExpression
+| ClassicalTimeVector : ClassicalTimeVectorExpression → PhysDimensionalExpression
+| ClassicalVelocity3Vector : ClassicalVelocity3VectorExpression → PhysDimensionalExpression
+| EuclideanGeometry3Point : EuclideanGeometry3PointExpression → PhysDimensionalExpression
+| ClassicalTimePoint : ClassicalTimePointExpression → PhysDimensionalExpression
 with RealScalarExpression : Type
 | RealLitScalar : RealScalar → RealScalarExpression
 | RealVarScalar : RealScalarVar → RealScalarExpression
@@ -174,65 +195,18 @@ with ClassicalTimePointExpression : Type
 |ClassicalTimeParenPoint :ClassicalTimePointExpression →ClassicalTimePointExpression
 |ClassicalTimeCoordPoint : ClassicalTimeScalarExpression →ClassicalTimePointExpression
 
-
-
+/-
+Space and frame expressions
+-/
 mutual inductive
-	--program state
-	PhysProgram,
-	PhysFunction,
-	PhysGlobalCommand,
-	PhysCommand,
-	PhysDimensionalVar,
-	PhysDimensionalExpression,
 	PhysSpaceExpression,
 	PhysFrameExpression,
 	EuclideanGeometry3SpaceExpression,
 	ClassicalTimeSpaceExpression,
 	ClassicalVelocity3SpaceExpression,
-
 	EuclideanGeometry3FrameExpression,
 	ClassicalTimeFrameExpression,
-	ClassicalVelocity3FrameExpression,
-
-	PhysBooleanExpression
-	
-with PhysProgram : Type
-| Program : PhysGlobalCommand → PhysProgram
-with PhysFunction : Type
-| DeclareFunction : PhysCommand → PhysFunction 
-with PhysGlobalCommand : Type
-| Seq : list PhysGlobalCommand → PhysGlobalCommand
-| GlobalSpace : PhysSpaceVar → PhysSpaceExpression → PhysGlobalCommand
-| GlobalFrame : PhysFrameVar → PhysFrameExpression → PhysGlobalCommand
-| Function : PhysCommand → PhysGlobalCommand
-| Main : PhysCommand → PhysGlobalCommand
-with PhysCommand : Type
-| Seq : list PhysCommand → PhysCommand
-| Block : PhysCommand → PhysCommand
-| While : PhysBooleanExpression → PhysCommand → PhysCommand
-| IfThenElse : PhysBooleanExpression → PhysCommand → PhysCommand → PhysCommand
-| Assignment : PhysDimensionalVar → PhysDimensionalExpression → PhysCommand
---| Expression : PhysDimensionalExpression
-with PhysDimensionalVar : Type
-| RealScalar : RealScalarVar → PhysDimensionalVar
-| EuclideanGeometry3Scalar : EuclideanGeometry3ScalarVar → PhysDimensionalVar
-| ClassicalTimeScalar : ClassicalTimeScalarVar → PhysDimensionalVar
-| ClassicalVelocity3Scalar : ClassicalVelocity3ScalarVar → PhysDimensionalVar
-| EuclideanGeometry3Vector : EuclideanGeometry3VectorVar → PhysDimensionalVar
-| ClassicalTimeVector : ClassicalTimeVectorVar → PhysDimensionalVar
-| ClassicalVelocity3Vector : ClassicalVelocity3VectorVar → PhysDimensionalVar
-| EuclideanGeometry3Point : EuclideanGeometry3PointVar → PhysDimensionalVar
-| ClassicalTimePoint : ClassicalTimePointVar → PhysDimensionalVar 
-with PhysDimensionalExpression : Type
-| RealScalar : RealScalarExpression → PhysDimensionalExpression
-| EuclideanGeometry3ScalarExpression : EuclideanGeometry3ScalarExpression → PhysDimensionalExpression
-| ClassicalTimeScalar : ClassicalTimeScalarExpression → PhysDimensionalExpression
-| ClassicalVelocity3Scalar : ClassicalVelocity3ScalarExpression → PhysDimensionalExpression
-| EuclideanGeometry3Vector : EuclideanGeometry3VectorExpression → PhysDimensionalExpression
-| ClassicalTimeVector : ClassicalTimeVectorExpression → PhysDimensionalExpression
-| ClassicalVelocity3Vector : ClassicalVelocity3VectorExpression → PhysDimensionalExpression
-| EuclideanGeometry3Point : EuclideanGeometry3PointExpression → PhysDimensionalExpression
-| ClassicalTimePoint : ClassicalTimePointExpression → PhysDimensionalExpression
+	ClassicalVelocity3FrameExpression
 with PhysSpaceExpression : Type
 | EuclideanGeometry3Expr : EuclideanGeometry3SpaceExpression → PhysSpaceExpression
 | ClassicalTimeExpr : ClassicalTimeSpaceExpression → PhysSpaceExpression
@@ -255,15 +229,69 @@ with ClassicalTimeFrameExpression: Type
 | FrameLiteral {sp : ClassicalTimeSpace} : ClassicalTimeFrame sp → ClassicalTimeFrameExpression
 with ClassicalVelocity3FrameExpression : Type
 | FrameLiteral {sp : ClassicalVelocitySpace 3} : ClassicalVelocityFrame sp → ClassicalVelocity3FrameExpression
-with PhysBooleanExpression : Type
+
+inductive PhysBooleanExpression : Type
 | BooleanTrue : PhysBooleanExpression
 | BooleanFalse : PhysBooleanExpression
 | BooleanAnd : PhysBooleanExpression → PhysBooleanExpression → PhysBooleanExpression
 | BooleanOr : PhysBooleanExpression → PhysBooleanExpression → PhysBooleanExpression
 | BooleanNot : PhysBooleanExpression → PhysBooleanExpression
+-- A LARGE NUMBER OF SCALAR AND VECTOR INEQUALITIES BELONG HERE
+
 /-
-A LARGE NUMBER OF SCALAR AND VECTOR INEQUALITIES BELONG HERE?
+KEVIN: These are kinds of thoughts we want to be able to express when annotating code:
+var geom := GeometricEuclideanSpace("World geometry",3)
+var stdGeomFrame := geom.stdFrame()
+var stdGeomOrigin := stdGeomFrame.origin();
 -/
+
+/-
+-- Imperative top-level DSL syntax
+
+mutual inductive
+	PhysProgram,
+	PhysFunction,
+	PhysGlobalCommand,
+	PhysCommand
+	
+with PhysProgram : Type
+| Program : PhysGlobalCommand → PhysProgram
+with PhysFunction : Type
+| DeclareFunction : PhysCommand → PhysFunction 
+with PhysGlobalCommand : Type
+| Seq : list PhysGlobalCommand → PhysGlobalCommand
+| GlobalSpace : PhysSpaceVar → PhysSpaceExpression → PhysGlobalCommand
+| GlobalFrame : PhysFrameVar → PhysFrameExpression → PhysGlobalCommand
+| Function : PhysCommand → PhysGlobalCommand
+| Main : PhysCommand → PhysGlobalCommand
+with PhysCommand : Type
+| Seq : list PhysCommand → PhysCommand
+--| Block : PhysCommand → PhysCommand
+| While : PhysBooleanExpression → PhysCommand → PhysCommand
+| IfThenElse : PhysBooleanExpression → PhysCommand → PhysCommand → PhysCommand
+| Assignment : PhysDimensionalVar → PhysDimensionalExpression → PhysCommand
+--| Expression : PhysDimensionalExpression
+-/
+
+/-
+Imperative top-level DSL syntax
+-/
+inductive PhysCommand : Type
+| Assignment : PhysDimensionalVar → PhysDimensionalExpression → PhysCommand
+| While : PhysBooleanExpression → PhysCommand → PhysCommand
+| IfThenElse : PhysBooleanExpression → PhysCommand → PhysCommand → PhysCommand
+| Seq : PhysCommand → PhysCommand → PhysCommand 
+| CmdExpr : PhysDimensionalExpression → PhysCommand
+
+
+/-
+NOTATIONS BEGIN HERE
+--7/16 (7/15) - OUR MAGIC NOTATION CANDIDATE LIST:
+--https://www.caam.rice.edu/~heinken/latex/symbols.pdf
+-/
+
+
+
 notation !n := EuclideanGeometry3SpaceVar.mk n
 notation !n := ClassicalTimeSpaceVar.mk n
 notation !n := ClassicalVelocity3SpaceVar.mk n
@@ -286,28 +314,6 @@ notation ?e := PhysSpaceVar.ClassicalVelocityLiteral 3
 
 notation a=b := PhysCommand.Assignment a b
 
-/-
-with PhysDimensionalExpression : Type
-| RealScalar : RealScalarExpression → PhysDimensionalExpression
-| EuclideanGeometry3ScalarExpression : EuclideanGeometry3ScalarExpression → PhysDimensionalExpression
-| ClassicalTimeScalar : ClassicalTimeScalarExpression → PhysDimensionalExpression
-| ClassicalVelocity3Scalar : ClassicalVelocity3ScalarExpression → PhysDimensionalExpression
-| EuclideanGeometry3Vector : EuclideanGeometry3VectorExpression → PhysDimensionalExpression
-| ClassicalTimeVector : ClassicalTimeVectorExpression → PhysDimensionalExpression
-| ClassicalVelocity3Vector : ClassicalVelocity3VectorExpression → PhysDimensionalExpression
-| EuclideanGeometry3Point : EuclideanGeometry3PointExpression → PhysDimensionalExpression
-| ClassicalTimePoint : ClassicalTimePointExpression → PhysDimensionalExpression
-with PhysDimensionalVar : Type
-| RealScalar : RealScalarVar → PhysDimensionalVar
-| EuclideanGeometry3Scalar : EuclideanGeometry3ScalarVar → PhysDimensionalVar
-| ClassicalTimeScalar : ClassicalTimeScalarVar → PhysDimensionalVar
-| ClassicalVelocity3Scalar : ClassicalVelocity3ScalarVar → PhysDimensionalVar
-| EuclideanGeometry3Vector : EuclideanGeometry3VectorVar → PhysDimensionalVar
-| ClassicalTimeVector : ClassicalTimeVectorVar → PhysDimensionalVar
-| ClassicalVelocity3Vector : ClassicalVelocity3VectorVar → PhysDimensionalVar
-| EuclideanGeometry3Point : EuclideanGeometry3PointVar → PhysDimensionalVar
-| ClassicalTimePoint : ClassicalTimePointVar → PhysDimensionalVar 
--/
 notation ⊢e := PhysDimensionalVar.RealScalar e
 notation ⊢e := PhysDimensionalVar.EuclideanGeometry3Scalar e
 notation ⊢e := PhysDimensionalVar.ClassicalTimeScalar e
@@ -344,38 +350,6 @@ notation ⊢e := PhysFrameExpression.ClassicalTimeFrameExpr e
 notation ⊢e := PhysFrameExpression.ClassicalVelocity3FrameExpr e
 notation ⊢e := PhysFrameExpression.EuclideanGeometry3FrameExpr e
 
-def a : PhysSpaceExpression := PhysSpaceExpression.ClassicalTimeExpr (ClassicalTimeSpaceExpression.ClassicalTimeLiteral (BuildClassicalTimeSpace "hi") )
-
-def b : PhysSpaceVar := PhysSpaceVar.ClassicalTime (!3)
-
-def c : PhysGlobalCommand := PhysGlobalCommand.GlobalSpace b a 
-
-
-
-/-
-What exactly does the DSL instance look like for our 0-line program
-
-
-def BuildEuclideanGeometry3Space : EuclideanGeometrySpace 3 := 
-    EuclideanGeometrySpace.SpaceLiteral 3 (PhysAffineSpace.SpaceLiteral 3 meters si_standard) <needs to be connected to mathlib>
-
-def x := PhysSpaceVar.mk 1
-def y := PhysSpaceExpression.SpaceLiteral <a physlib object> 
-def z := PhysGlobalCommand.GlobalSpace x y
-def a := PhysGlobalCommand.Seq z
-
-def prog := PhysProgram z 
-OR
-def prog := PhysProgram a
-OR
-def prog := a
-
-
-def := PhysGlobalGlobal 
-
-
--/
-
 notation !n := RealScalarVar.mk n
 notation !n := EuclideanGeometry3ScalarVar.mk n
 notation !n := ClassicalTimeScalarVar.mk n
@@ -385,18 +359,6 @@ notation !n := ClassicalTimeVectorVar.mk n
 notation !n := ClassicalVelocity3VectorVar.mk n
 notation !n := EuclideanGeometry3PointVar.mk n
 notation !n := ClassicalTimePointVar.mk n
-/-
-VARIABLE UNKNOWN
-
-CASE 1: I PROVIDE A TYPE FOR VARIABLE -> REAL SCALAR VARIABLE X
-RealScalarExpression.RealScalarVar 4 --{4}
-
-CASE 2: I DONT PROVIDE A TYPE FOR VARIABLE
-{}
-
-
--/
-
 
 --RealScalarExpression Notations
 notation %e := RealScalarExpression.RealVarScalar e
@@ -460,18 +422,6 @@ notation ~e := EuclideanGeometry3VectorExpression.EuclideanGeometry3LitVector e
 notation e1⬝e2⬝e3 := EuclideanGeometry3VectorExpression.EuclideanGeometry3CoordVector e1 e2 e3
 
 
-/-
-def X : EuclideanGeometry3ScalarExpression := EuclideanGeometry3ScalarExpression.GeometricLitScalar (EuclideanGeometry3Scalar.mk 0 meters)
-def Y : EuclideanGeometry3ScalarExpression := EuclideanGeometry3ScalarExpression.GeometricLitScalar (EuclideanGeometry3Scalar.mk 0 meters)
-def Z : EuclideanGeometry3ScalarExpression := EuclideanGeometry3ScalarExpression.GeometricLitScalar (EuclideanGeometry3Scalar.mk 0 meters)
-def R : RealScalarExpression := RealScalarExpression.RealLitScalar RealScalarDefault
-def geomexpr : EuclideanGeometry3VectorExpression := EuclideanGeometry3VectorExpression.EuclideanGeometry3CoordVector X Y Z
-def geom2expr : EuclideanGeometry3VectorExpression := X⬝Y⬝Z
-#check EuclideanGeometry3VectorExpression.EuclideanGeometry3CoordVector X Y Z
-#check  R ⬝ geomexpr
--/
-
-
 --ClassicalVelocity3Vector Notations
 notation %e := ClassicalVelocity3VectorExpression.ClassicalVelocity3VarVector e
 instance : has_add ClassicalVelocity3VectorExpression := ⟨ClassicalVelocity3VectorExpression.ClassicalVelocity3AddVectorVector⟩ 
@@ -482,21 +432,6 @@ notation e1 - e2 := ClassicalVelocity3VectorExpression.ClassicalVelocity3SubPoin
 notation $e := ClassicalVelocity3VectorExpression.ClassicalVelocity3ParenVector e
 notation ~e := ClassicalVelocity3VectorExpression.ClassicalVelocity3LitVector e
 notation e1⬝e2⬝e3 := ClassicalVelocity3VectorExpression.ClassicalVelocity3CoordVector e1 e2 e3
-
-/-
-def vel_var : ClassicalVelocity3VectorVar := ClassicalVelocity3VectorVar.mk 0 
-
-def help : ClassicalVelocity3VectorExpression := ~vel_var
-
-
-def helper : ClassicalVelocity3VectorExpression → bool
-| (ClassicalVelocity3VectorExpression.ClassicalVelocity3VarVector v) := tt
-| _ := ff
-
-#check ~vel_var
-
-#check ~vel_var
--/
 
 
 --ClassicalTimeVector Notations
@@ -534,11 +469,6 @@ notation e • c := ClassicalTimePointExpression.ClassicalTimePointScalar e c
 notation ~e := ClassicalTimePointExpression.ClassicalTimeLitPoint e
 notation ⬝e := ClassicalTimePointExpression.ClassicalTimeCoordPoint e
 
-
-
-
-
-
 abbreviation RealScalarInterp := RealScalarVar → RealScalar
 --abbreviation EuclideanGeometryScalarInterp := EuclideanGeometry3ScalarVar → EuclideanGeometryScalar
 --abbreviation ClassicalTimeScalarInterp := ClassicalTimeScalarVar → ClassicalTimeScalar
@@ -560,12 +490,52 @@ abbreviation ClassicalTimePointInterp (sp : ClassicalTimeSpace) := ClassicalTime
 def DefaultRealScalarInterp : RealScalarInterp := λ scalar, RealScalarDefault
 
 
+/-
+EVALUATION / SEMANTICS?
+-/
+
+
+
 def EvalEuclideanGeometry3SpaceExpression : EuclideanGeometry3SpaceExpression → EuclideanGeometrySpace 3
 | (EuclideanGeometry3SpaceExpression.EuclideanGeometry3Literal sp) := sp
 def EvalClassicalVelocity3SpaceExpression : ClassicalVelocity3SpaceExpression → ClassicalVelocitySpace 3
 | (ClassicalVelocity3SpaceExpression.ClassicalVelocity3Literal sp) := sp
 def EvalClassicalTimeSpaceExpression : ClassicalTimeSpaceExpression → ClassicalTimeSpace
 | (ClassicalTimeSpaceExpression.ClassicalTimeLiteral sp) := sp
+
+
+/-
+OLD COMMENTS BELOW, SAVED FOR NOW
+-/
+
+/-
+What exactly does the DSL instance look like for our 0-line program
+
+def BuildEuclideanGeometry3Space : EuclideanGeometrySpace 3 := 
+    EuclideanGeometrySpace.SpaceLiteral 3 (PhysAffineSpace.SpaceLiteral 3 meters si_standard) <needs to be connected to mathlib>
+
+def x := PhysSpaceVar.mk 1
+def y := PhysSpaceExpression.SpaceLiteral <a physlib object> 
+def z := PhysGlobalCommand.GlobalSpace x y
+def a := PhysGlobalCommand.Seq z
+
+def prog := PhysProgram z 
+OR
+def prog := PhysProgram a
+OR
+def prog := a
+
+def := PhysGlobalGlobal 
+
+def X : EuclideanGeometry3ScalarExpression := EuclideanGeometry3ScalarExpression.GeometricLitScalar (EuclideanGeometry3Scalar.mk 0 meters)
+def Y : EuclideanGeometry3ScalarExpression := EuclideanGeometry3ScalarExpression.GeometricLitScalar (EuclideanGeometry3Scalar.mk 0 meters)
+def Z : EuclideanGeometry3ScalarExpression := EuclideanGeometry3ScalarExpression.GeometricLitScalar (EuclideanGeometry3Scalar.mk 0 meters)
+def R : RealScalarExpression := RealScalarExpression.RealLitScalar RealScalarDefault
+def geomexpr : EuclideanGeometry3VectorExpression := EuclideanGeometry3VectorExpression.EuclideanGeometry3CoordVector X Y Z
+def geom2expr : EuclideanGeometry3VectorExpression := X⬝Y⬝Z
+#check EuclideanGeometry3VectorExpression.EuclideanGeometry3CoordVector X Y Z
+#check  R ⬝ geomexpr
+-/
 
 /-
 def EvalEuclideanGeometry3FrameExpression : EuclideanGeometry3SpaceExpression → EuclideanGeometrySpace 3
