@@ -1,4 +1,4 @@
-import ..physics.physlib2
+import .....phys.src.physlib2
 
 noncomputable theory
 
