@@ -91,7 +91,7 @@ mutual inductive
 	ClassicalTimePointExpression
 
 with PhysDimensionalExpression : Type
---| RealScalar : RealScalarExpression → PhysDimensionalExpression
+| RealScalar : RealScalarExpression → PhysDimensionalExpression
 | EuclideanGeometry3ScalarExpression : EuclideanGeometry3ScalarExpression → PhysDimensionalExpression
 | ClassicalTimeScalar : ClassicalTimeScalarExpression → PhysDimensionalExpression
 | ClassicalVelocity3Scalar : ClassicalVelocity3ScalarExpression → PhysDimensionalExpression
