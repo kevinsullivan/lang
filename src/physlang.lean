@@ -1,4 +1,4 @@
--- import .....phys.src.physlib2
+import .....phys.src.physlib
 
 noncomputable theory
 
@@ -80,7 +80,7 @@ Physical quantity expressions
 mutual inductive
 	--dimensionful (or less) expressions
 	PhysDimensionalExpression,
-	-- RealScalarExpression, 
+	RealScalarExpression, 
 	EuclideanGeometry3ScalarExpression, 
 	ClassicalTimeScalarExpression, 
 	ClassicalVelocity3ScalarExpression, 
@@ -100,7 +100,7 @@ with PhysDimensionalExpression : Type
 | ClassicalVelocity3Vector : ClassicalVelocity3VectorExpression → PhysDimensionalExpression
 | EuclideanGeometry3Point : EuclideanGeometry3PointExpression → PhysDimensionalExpression
 | ClassicalTimePoint : ClassicalTimePointExpression → PhysDimensionalExpression
-/-
+
 with RealScalarExpression : Type
 | RealLitScalar : RealScalar → RealScalarExpression
 | RealVarScalar : RealScalarVar → RealScalarExpression
@@ -111,7 +111,7 @@ with RealScalarExpression : Type
 | RealNegScalar : RealScalarExpression → RealScalarExpression
 | RealInvScalar : RealScalarExpression → RealScalarExpression
 | RealParenScalar : RealScalarExpression → RealScalarExpression
--/
+
 with EuclideanGeometry3ScalarExpression : Type
 | GeometricLitScalar : EuclideanGeometry3Scalar → EuclideanGeometry3ScalarExpression
 | GeometricVarScalar : EuclideanGeometry3ScalarVar → EuclideanGeometry3ScalarExpression
@@ -251,6 +251,8 @@ var stdGeomOrigin := stdGeomFrame.origin();
 Imperative top-level DSL syntax
 -/
 inductive PhysCommand : Type
+| SpaceAssignment : PhysSpaceVar → PhysSpaceExpression → PhysCommand
+| FrameAssignment : PhysFrameVar → PhysFrameExpression → PhysCommand
 | Assignment : PhysDimensionalVar → PhysDimensionalExpression → PhysCommand
 | While : PhysBooleanExpression → PhysCommand → PhysCommand
 | IfThenElse : PhysBooleanExpression → PhysCommand → PhysCommand → PhysCommand
@@ -285,6 +287,8 @@ notation ?e := PhysSpaceVar.ClassicalTimeLiteral e
 notation ?e := PhysSpaceVar.ClassicalVelocityLiteral 3
 
 notation a=b := PhysCommand.Assignment a b
+notation a=b := PhysCommand.SpaceAssignment a b
+notation a=b := PhysCommand.FrameAssignment a b
 
 notation ⊢e := PhysDimensionalVar.RealScalar e
 notation ⊢e := PhysDimensionalVar.EuclideanGeometry3Scalar e
