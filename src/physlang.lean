@@ -1,4 +1,4 @@
-import .....phys.src.physlib2
+import .....phys.src.physlib
 
 noncomputable theory
 
@@ -100,6 +100,7 @@ with PhysDimensionalExpression : Type
 | ClassicalVelocity3Vector : ClassicalVelocity3VectorExpression → PhysDimensionalExpression
 | EuclideanGeometry3Point : EuclideanGeometry3PointExpression → PhysDimensionalExpression
 | ClassicalTimePoint : ClassicalTimePointExpression → PhysDimensionalExpression
+
 with RealScalarExpression : Type
 | RealLitScalar : RealScalar → RealScalarExpression
 | RealVarScalar : RealScalarVar → RealScalarExpression
@@ -110,6 +111,7 @@ with RealScalarExpression : Type
 | RealNegScalar : RealScalarExpression → RealScalarExpression
 | RealInvScalar : RealScalarExpression → RealScalarExpression
 | RealParenScalar : RealScalarExpression → RealScalarExpression
+
 with EuclideanGeometry3ScalarExpression : Type
 | GeometricLitScalar : EuclideanGeometry3Scalar → EuclideanGeometry3ScalarExpression
 | GeometricVarScalar : EuclideanGeometry3ScalarVar → EuclideanGeometry3ScalarExpression
@@ -246,37 +248,11 @@ var stdGeomOrigin := stdGeomFrame.origin();
 -/
 
 /-
--- Imperative top-level DSL syntax
-
-mutual inductive
-	PhysProgram,
-	PhysFunction,
-	PhysGlobalCommand,
-	PhysCommand
-	
-with PhysProgram : Type
-| Program : PhysGlobalCommand → PhysProgram
-with PhysFunction : Type
-| DeclareFunction : PhysCommand → PhysFunction 
-with PhysGlobalCommand : Type
-| Seq : list PhysGlobalCommand → PhysGlobalCommand
-| GlobalSpace : PhysSpaceVar → PhysSpaceExpression → PhysGlobalCommand
-| GlobalFrame : PhysFrameVar → PhysFrameExpression → PhysGlobalCommand
-| Function : PhysCommand → PhysGlobalCommand
-| Main : PhysCommand → PhysGlobalCommand
-with PhysCommand : Type
-| Seq : list PhysCommand → PhysCommand
---| Block : PhysCommand → PhysCommand
-| While : PhysBooleanExpression → PhysCommand → PhysCommand
-| IfThenElse : PhysBooleanExpression → PhysCommand → PhysCommand → PhysCommand
-| Assignment : PhysDimensionalVar → PhysDimensionalExpression → PhysCommand
---| Expression : PhysDimensionalExpression
--/
-
-/-
 Imperative top-level DSL syntax
 -/
 inductive PhysCommand : Type
+| SpaceAssignment : PhysSpaceVar → PhysSpaceExpression → PhysCommand
+| FrameAssignment : PhysFrameVar → PhysFrameExpression → PhysCommand
 | Assignment : PhysDimensionalVar → PhysDimensionalExpression → PhysCommand
 | While : PhysBooleanExpression → PhysCommand → PhysCommand
 | IfThenElse : PhysBooleanExpression → PhysCommand → PhysCommand → PhysCommand
@@ -289,8 +265,6 @@ NOTATIONS BEGIN HERE
 --7/16 (7/15) - OUR MAGIC NOTATION CANDIDATE LIST:
 --https://www.caam.rice.edu/~heinken/latex/symbols.pdf
 -/
-
-
 
 notation !n := EuclideanGeometry3SpaceVar.mk n
 notation !n := ClassicalTimeSpaceVar.mk n
@@ -313,6 +287,8 @@ notation ?e := PhysSpaceVar.ClassicalTimeLiteral e
 notation ?e := PhysSpaceVar.ClassicalVelocityLiteral 3
 
 notation a=b := PhysCommand.Assignment a b
+notation a=b := PhysCommand.SpaceAssignment a b
+notation a=b := PhysCommand.FrameAssignment a b
 
 notation ⊢e := PhysDimensionalVar.RealScalar e
 notation ⊢e := PhysDimensionalVar.EuclideanGeometry3Scalar e
@@ -410,7 +386,7 @@ notation |e| := ClassicalVelocity3ScalarExpression.VelocityNormVector e
 notation ⬝e := ClassicalVelocity3ScalarExpression.VelocityLitScalar e
 
 
---Gemoetric3Vector Notations
+--Geometric3Vector Notations
 notation %e := EuclideanGeometry3VectorExpression.EuclideanGeometry3VarVector e
 instance : has_add EuclideanGeometry3VectorExpression := ⟨EuclideanGeometry3VectorExpression.EuclideanGeometry3AddVectorVector⟩ 
 instance : has_neg EuclideanGeometry3VectorExpression := ⟨EuclideanGeometry3VectorExpression.EuclideanGeometry3NegVector⟩ 
@@ -486,15 +462,11 @@ abbreviation EuclideanGeometry3PointInterp (sp : EuclideanGeometrySpace 3):= Euc
 abbreviation ClassicalTimePointInterp (sp : ClassicalTimeSpace) := ClassicalTimePointVar → ClassicalTimePoint sp
 --abbreviation ClassicalVelocity3PointInterp := ClassicalVelocity3PointVar → ClassicalVelocity3PointStruct
 
-
 def DefaultRealScalarInterp : RealScalarInterp := λ scalar, RealScalarDefault
-
 
 /-
 EVALUATION / SEMANTICS?
 -/
-
-
 
 def EvalEuclideanGeometry3SpaceExpression : EuclideanGeometry3SpaceExpression → EuclideanGeometrySpace 3
 | (EuclideanGeometry3SpaceExpression.EuclideanGeometry3Literal sp) := sp
@@ -503,10 +475,39 @@ def EvalClassicalVelocity3SpaceExpression : ClassicalVelocity3SpaceExpression �
 def EvalClassicalTimeSpaceExpression : ClassicalTimeSpaceExpression → ClassicalTimeSpace
 | (ClassicalTimeSpaceExpression.ClassicalTimeLiteral sp) := sp
 
-
 /-
 OLD COMMENTS BELOW, SAVED FOR NOW
 -/
+
+/-
+-- Imperative top-level DSL syntax
+
+mutual inductive
+	PhysProgram,
+	PhysFunction,
+	PhysGlobalCommand,
+	PhysCommand
+	
+with PhysProgram : Type
+| Program : PhysGlobalCommand → PhysProgram
+with PhysFunction : Type
+| DeclareFunction : PhysCommand → PhysFunction 
+with PhysGlobalCommand : Type
+| Seq : list PhysGlobalCommand → PhysGlobalCommand
+| GlobalSpace : PhysSpaceVar → PhysSpaceExpression → PhysGlobalCommand
+| GlobalFrame : PhysFrameVar → PhysFrameExpression → PhysGlobalCommand
+| Function : PhysCommand → PhysGlobalCommand
+| Main : PhysCommand → PhysGlobalCommand
+with PhysCommand : Type
+| Seq : list PhysCommand → PhysCommand
+--| Block : PhysCommand → PhysCommand
+| While : PhysBooleanExpression → PhysCommand → PhysCommand
+| IfThenElse : PhysBooleanExpression → PhysCommand → PhysCommand → PhysCommand
+| Assignment : PhysDimensionalVar → PhysDimensionalExpression → PhysCommand
+--| Expression : PhysDimensionalExpression
+-/
+
+
 
 /-
 What exactly does the DSL instance look like for our 0-line program
