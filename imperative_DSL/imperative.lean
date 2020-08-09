@@ -1,3 +1,5 @@
+--import ..src.physlang
+
 --will import these later, temporary structures
 inductive geomSpace : Type
 | mk (dim : ℕ) : geomSpace
@@ -36,10 +38,16 @@ inductive TimeSpaceExpression
 --a geomSpaceAssmt takes in a geom space variable, and a geom space expression
 inductive geomSpaceCmd
 | geomSpaceAssmt (v : geomSpaceVar) (e : GeometricSpaceExpression) : geomSpaceCmd
+| skip
+| geomSpaceSeq (c1 c2 : geomSpaceCmd)
+| geomSpaceIf (b : bool) (c1 c2 : geomSpaceCmd)
 
 --time Space commands
 inductive timeSpaceCmd
 | timeSpaceAssmt (v : timeSpaceVar) (e : TimeSpaceExpression) : timeSpaceCmd
+| skip
+| timeSpaceSeq (c1 c2 : timeSpaceCmd)
+| timeSpaceIf (b : bool) (c1 c2 : timeSpaceCmd)
 
 --Environments are similar to interpretations, assign values to variables
 def geomSpaceEnvironment := (geomSpaceVar → geomSpace)
@@ -69,19 +77,33 @@ def GeomSpaceCmd_eval : geomSpaceCmd → geomSpaceEnvironment → geomSpaceEnvir
 | (geomSpaceCmd.geomSpaceAssmt v e) E :=  
     λ (var : geomSpaceVar),
         if (geomSpaceVarEq v var) then (geomSpaceEval e E) else (E var)
-
+| (geomSpaceCmd.skip) E := E
+| (geomSpaceCmd.geomSpaceSeq c1 c2) E :=
+    let i1 := GeomSpaceCmd_eval c1 E in 
+        GeomSpaceCmd_eval c2 i1
+| (geomSpaceCmd.geomSpaceIf b c1 c2) E := 
+    if b then (GeomSpaceCmd_eval c1 E) else 
+        (GeomSpaceCmd_eval c2 E)
 
 def TimeSpaceCmd_eval : timeSpaceCmd → timeSpaceEnvironment → timeSpaceEnvironment 
 | (timeSpaceCmd.timeSpaceAssmt v e) E :=
     λ (var : timeSpaceVar),
         if (timeSpaceVarEq v var) then (timeSpaceEval e E) else (E var)
+| (timeSpaceCmd.skip) E := E
+| (timeSpaceCmd.timeSpaceSeq c1 c2) E :=
+    let i1 := TimeSpaceCmd_eval c1 E in 
+        TimeSpaceCmd_eval c2 i1
+| (timeSpaceCmd.timeSpaceIf b c1 c2) E := 
+    if b then (TimeSpaceCmd_eval c1 E) else 
+        (TimeSpaceCmd_eval c2 E)
+
 
 def my_var : geomSpaceVar := geomSpaceVar.mk 0
 
 def myProgram : geomSpaceCmd := geomSpaceCmd.geomSpaceAssmt my_var (GeometricSpaceExpression.GeometricSpaceLiteral (geomSpace.mk 3))
 
 #reduce GeomSpaceCmd_eval myProgram geomDefaultEnv
-/- DEMO -/
+ /- DEMO -/
 
 inductive bvar : Type
 | mk (n : ℕ)
@@ -108,18 +130,31 @@ def update_benv : benv → bvar → bool → benv
 | e v b := λ v2, if (bvar_eq v v2) then b else (e v2)
 
 inductive bCmd : Type
+| bSkip
 | bAssm (v : bvar) (e : bExpr)
 | bSeq (c1 c2 : bCmd)
+| bIf (b : bool) (c1 c2 : bCmd)
 
 def cEval : benv → bCmd → benv 
 | i0 c :=   match c with
+            | bCmd.bSkip := i0
             | (bCmd.bAssm v e) := update_benv i0 v (bEval e i0)
             | (bCmd.bSeq c1 c2) := 
-                let i1 := (cEval i0 c1) in (cEval i1 c2)
+                begin
+                    have i1 := cEval i0 c1,
+                    have i2 := cEval i1 c2,
+                    exact i0, -- exact i2,
+                end
+                -- let i1 := (cEval i0 c1) in
+                --  (cEval i1 c2)
+            | (bCmd.bIf b c1 c2) := match b with 
+                | tt := i0 --cEval i0 c1
+                | ff := i0 --cEval i0 c2
+                end
             end
 
 def myFirstProg := bCmd.bAssm (bvar.mk 0) (bExpr.BLit ff)
 
 def newEnv := cEval init_benv myFirstProg
 
-#eval newEnv (bvar.mk 0)
+#eval newEnv (bvar.mk 0) 
