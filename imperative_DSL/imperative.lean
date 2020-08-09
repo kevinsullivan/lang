@@ -12,6 +12,13 @@ mk :: (num : ℕ)
 structure timeSpaceVar : Type :=
 mk :: (num : ℕ) 
 
+def geomSpaceVarEq : geomSpaceVar → geomSpaceVar → bool
+| v1 v2 := v1.num=v2.num
+
+def timeSpaceVarEq : timeSpaceVar → timeSpaceVar → bool
+| v1 v2 := v1.num=v2.num
+
+
 --GeometricSpaceExpression
 --Can be a literal, a variable, or function application expression
 inductive GeometricSpaceExpression
@@ -35,8 +42,8 @@ inductive timeSpaceCmd
 | timeSpaceAssmt (v : timeSpaceVar) (e : TimeSpaceExpression) : timeSpaceCmd
 
 --Environments are similar to interpretations, assign values to variables
-abbreviation geomSpaceEnvironment := (geomSpaceVar → geomSpace)
-abbreviation timeSpaceEnvironment := (timeSpaceVar → timeSpace)
+def geomSpaceEnvironment := (geomSpaceVar → geomSpace)
+def timeSpaceEnvironment := (timeSpaceVar → timeSpace)
 
 
 
@@ -59,23 +66,21 @@ def timeDefaultEnv : timeSpaceEnvironment := λ (v : timeSpaceVar), timeSpace.mk
 --Command Eval functions take in a command, an environment, and returns a new updated environment
 --after assigning the new value to the variable 
 def GeomSpaceCmd_eval : geomSpaceCmd → geomSpaceEnvironment → geomSpaceEnvironment 
-| (geomSpaceCmd.geomSpaceAssmt v e) E := 
-    let var_num := v.num in 
+| (geomSpaceCmd.geomSpaceAssmt v e) E :=  
     λ (var : geomSpaceVar),
-        match var with
-        | (geomSpaceVar.mk var_num) := geomSpaceEval e E
-        end
+        if (geomSpaceVarEq v var) then (geomSpaceEval e E) else (E var)
 
 
 def TimeSpaceCmd_eval : timeSpaceCmd → timeSpaceEnvironment → timeSpaceEnvironment 
 | (timeSpaceCmd.timeSpaceAssmt v e) E :=
-    let var_num := v.num in
     λ (var : timeSpaceVar),
-        match var with
-        | (timeSpaceVar.mk var_num) := timeSpaceEval e E
-        end
+        if (timeSpaceVarEq v var) then (timeSpaceEval e E) else (E var)
 
+def my_var : geomSpaceVar := geomSpaceVar.mk 0
 
+def myProgram : geomSpaceCmd := geomSpaceCmd.geomSpaceAssmt my_var (GeometricSpaceExpression.GeometricSpaceLiteral (geomSpace.mk 3))
+
+#reduce GeomSpaceCmd_eval myProgram geomDefaultEnv
 /- DEMO -/
 
 inductive bvar : Type
