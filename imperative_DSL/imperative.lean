@@ -1,15 +1,22 @@
 --import ..src.physlang
+import ...phys.src.space
 
 --will import these later, temporary structures
-inductive geomSpace : Type
+inductive geomSpace : Type*
 | mk (dim : ℕ) : geomSpace
 
-inductive timeSpace : Type
+inductive timeSpace : Type*
 | mk
 
 --variable types
 structure geomSpaceVar : Type := 
 mk :: (num : ℕ) 
+
+/-
+Test code
+-/
+def g1 := geomSpaceVar.mk 0
+def g2 := geomSpaceVar.mk 1
 
 structure timeSpaceVar : Type :=
 mk :: (num : ℕ) 
@@ -20,13 +27,20 @@ def geomSpaceVarEq : geomSpaceVar → geomSpaceVar → bool
 def timeSpaceVarEq : timeSpaceVar → timeSpaceVar → bool
 | v1 v2 := v1.num=v2.num
 
+-- add has_eq instances (decidable equalities)
+
 
 --GeometricSpaceExpression
 --Can be a literal, a variable, or function application expression
 inductive GeometricSpaceExpression
-| GeometricSpaceLiteral (V : geomSpace) : GeometricSpaceExpression
+| GeometricSpaceLiteral (s : geomSpace) : GeometricSpaceExpression
 | GeometricSpaceVariable (v : geomSpaceVar) : GeometricSpaceExpression
-| GeometricProduct (V1 V2 : geomSpace) : GeometricSpaceExpression
+-- | GeometricProduct (V1 V2 : geomSpace) : GeometricSpaceExpression
+
+
+-- def l1 := GeometricSpaceExpression.GeometricSpaceLiteral Space.Geom1d -- FIX: from phys!!!
+-- need to refactor some of the preceding code, the placeholders
+
 
 --Same for time spaces
 inductive TimeSpaceExpression
@@ -40,7 +54,7 @@ inductive geomSpaceCmd
 | geomSpaceAssmt (v : geomSpaceVar) (e : GeometricSpaceExpression) : geomSpaceCmd
 | skip
 | geomSpaceSeq (c1 c2 : geomSpaceCmd)
-| geomSpaceIf (b : bool) (c1 c2 : geomSpaceCmd)
+| geomSpaceIf (b : bool) (c1 c2 : geomSpaceCmd) --boolexpr!
 
 --time Space commands
 inductive timeSpaceCmd
@@ -57,9 +71,9 @@ def timeSpaceEnvironment := (timeSpaceVar → timeSpace)
 
 --Eval functions take in an expression, and an environment, and then returns a geomSpace
 def geomSpaceEval : GeometricSpaceExpression → geomSpaceEnvironment → geomSpace 
-| (GeometricSpaceExpression.GeometricSpaceLiteral V) E := V
-| (GeometricSpaceExpression.GeometricSpaceVariable v) E := E v
-| (GeometricSpaceExpression.GeometricProduct V1 V2) E := V1 --not sure how to combine spaces yet
+| (GeometricSpaceExpression.GeometricSpaceLiteral s) e := s
+| (GeometricSpaceExpression.GeometricSpaceVariable v) e := e v
+--| (GeometricSpaceExpression.GeometricProduct V1 V2) E := V1 --not sure how to combine spaces yet
 
 def timeSpaceEval : TimeSpaceExpression → timeSpaceEnvironment → timeSpace
 | (TimeSpaceExpression.TimeSpaceLiteral V) E := V
