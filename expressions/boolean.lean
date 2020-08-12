@@ -1,4 +1,6 @@
-/- DEMO -/
+/-
+We have a better version of this. To be replaced.
+-/
 
 inductive bvar : Type
 | mk (n : ℕ)

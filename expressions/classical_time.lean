@@ -1,4 +1,4 @@
-import ...phys.src.time
+import ...phys.src.classical_time
 
 structure classicalTimeVar : Type :=
 mk :: (num : ℕ) 
@@ -12,3 +12,6 @@ inductive classicalTimeExpression
 | classicalTimeLiteral (v : classicalTime) : classicalTimeExpression
 | classicalTimeVariable (v : classicalTimeVar) : classicalTimeExpression
 
+def classicalTimeEval : classicalTimeExpression → classicalTimeEnvironment → classicalTime
+| (classicalTimeExpression.classicalTimeLiteral V) E := V
+| (classicalTimeExpression.classicalTimeVariable v) E := E v

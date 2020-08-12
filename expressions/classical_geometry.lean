@@ -1,4 +1,4 @@
-import ...phys.src.geometry
+import ...phys.src.classical_geometry
 
 structure classicalGeometryVar : Type := 
 mk :: (num : ℕ) 
@@ -13,7 +13,7 @@ inductive classicalGeometryExpression
 
 def classicalGeometryEnvironment := (classicalGeometryVar → classicalGeometry)
 
-def classicalGeometryEval : classicalGeometryExpression → classicalGeometryEnvironment → Space.classicalGeometry 
+def classicalGeometryEval : classicalGeometryExpression → classicalGeometryEnvironment → classicalGeometry 
 | (classicalGeometryExpression.GeometricSpaceLiteral s) e := s
 | (classicalGeometryExpression.GeometricSpaceVariable v) e := e v
 --| (classicalGeometryExpression.GeometricProduct V1 V2) E := V1 --not sure how to combine spaces yet

@@ -1,6 +1,6 @@
-import ...phys.src.velocity
-import .geometry
-import .time
+import ...phys.src.classical_velocity
+import .classical_geometry
+import .classical_time
 
 structure classicalVelocityVar : Type :=
 mk :: (num : ℕ)
