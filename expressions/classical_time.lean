@@ -8,6 +8,8 @@ def classicalTimeVarEq : classicalTimeVar → classicalTimeVar → bool
 
 def classicalTimeEnvironment := (classicalTimeVar → classicalTime)
 
+def init_classicalTimeEnvironment := λ v : classicalTimeVar, worldTime
+
 inductive classicalTimeExpression
 | classicalTimeLiteral (v : classicalTime) : classicalTimeExpression
 | classicalTimeVariable (v : classicalTimeVar) : classicalTimeExpression

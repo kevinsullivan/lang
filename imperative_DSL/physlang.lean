@@ -17,15 +17,27 @@ inductive cmd : Type
 | if_then_else (b : bExpr) (t f : cmd)
 | seq (c1 c2 : cmd)
 
--- standard frames on spaces
--- finish updating rest of file ... still under construction 
+structure env : Type :=
+mk ::   (g: classicalGeometryEnvironment)
+        (t: classicalTimeEnvironment)
+        (v: classicalVelocityEnvironment)
 
+def init_env := env.mk 
+                    init_classicalGeometryEnvironment
+                    init_classicalTimeEnvironment
+                    init_classicalVelocitEnvironment
+
+
+
+-- TBD!
 --Command Eval functions take in a command, an environment, and returns a new updated environment
 --after assigning the new value to the variable 
-def cmd_eval : cmd → classicalGeometryEnvironment → classicalGeometryEnvironment 
-| (cmd.classicalGeometryAssmt v e) E :=  
+def cmd_eval : cmd → env → env
+| (cmd.classicalGeometryAssmt v e) i :=  
     λ (var : classicalGeometryVar),
-        if (classicalGeometryVarEq v var) then (classicalGeometryEval e E) else (E var)
+        if (classicalGeometryVarEq v var) 
+        then (classicalGeometryEval e E) 
+        else (E var)
 | (cmd.skip) E := E
 | (cmd.classicalGeometrySeq c1 c2) E :=
     let i1 := cmd_eval c1 E in 

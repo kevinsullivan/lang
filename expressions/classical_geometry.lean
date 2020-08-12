@@ -13,6 +13,8 @@ inductive classicalGeometryExpression
 
 def classicalGeometryEnvironment := (classicalGeometryVar → classicalGeometry)
 
+def init_classicalGeometryEnvironment := λ v : classicalGeometryVar, worldGeometry
+
 def classicalGeometryEval : classicalGeometryExpression → classicalGeometryEnvironment → classicalGeometry 
 | (classicalGeometryExpression.GeometricSpaceLiteral s) e := s
 | (classicalGeometryExpression.GeometricSpaceVariable v) e := e v
