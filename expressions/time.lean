@@ -1,4 +1,4 @@
-import ...phys.src.space
+import ...phys.src.time
 
 structure classicalTimeVar : Type :=
 mk :: (num : ℕ) 
@@ -6,9 +6,9 @@ mk :: (num : ℕ)
 def classicalTimeVarEq : classicalTimeVar → classicalTimeVar → bool
 | v1 v2 := v1.num=v2.num
 
-def classicalTimeEnvironment := (classicalTimeVar → Space.classicalTime)
+def classicalTimeEnvironment := (classicalTimeVar → classicalTime)
 
 inductive classicalTimeExpression
-| classicalTimeLiteral (V : Space.classicalTime) : classicalTimeExpression
+| classicalTimeLiteral (v : classicalTime) : classicalTimeExpression
 | classicalTimeVariable (v : classicalTimeVar) : classicalTimeExpression
 

@@ -1,4 +1,6 @@
-import ...phys.src.space
+import ...phys.src.velocity
+import .geometry
+import .time
 
 structure classicalVelocityVar : Type :=
 mk :: (num : ℕ)
@@ -7,7 +9,9 @@ def classicalVelocityVarEq : classicalVelocityVar → classicalVelocityVar → b
 | v1 v2 := v1.num=v2.num
 
 
-def classicalVelocityEnvironment := (classicalVelocityVar → Space.classicalVelocity)
+def classicalVelocityEnvironment := (classicalVelocityVar → classicalVelocity)
 
 inductive classicalVelocityExpression : Type
--- fill in constructors
+| classicalVelocityLiteral (v : classicalVelocity)
+| classicalVelocityVar (v : classicalVelocityVar)
+| classicalVelocityExpr (g : classicalGeometryExpression) (t : classicalTimeExpression)

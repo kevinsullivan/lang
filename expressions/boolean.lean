@@ -16,8 +16,6 @@ def bEval : bExpr → benv → bool
 | (bExpr.BLit b) i := b
 | (bExpr.BVar v) i := i v
 
-def init_benv : benv := λ v, ff
-
 def update_benv : benv → bvar → bool → benv 
 | i v b := λ v2, if (bvar_eq v v2) then b else (i v2)
 
@@ -29,9 +27,3 @@ def cEval : benv → bCmd → benv
 | i0 (bCmd.bAssm v e)  := update_benv i0 v (bEval e i0)
 | i0 (bCmd.bSeq c1 c2) := (cEval (cEval i0 c1) c2)
 
-
-def myFirstProg := bCmd.bAssm (bvar.mk 0) (bExpr.BLit ff)
-
-def newEnv := cEval init_benv myFirstProg
-
-#eval newEnv (bvar.mk 0)
