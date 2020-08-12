@@ -1,122 +1,90 @@
---import ..src.physlang
+import ..expressions.geometry
+import ..expressions.time
 import ...phys.src.space
 
---will import these later, temporary structures
-inductive geomSpace : Type*
-| mk (dim : ℕ) : geomSpace
 
-inductive timeSpace : Type*
-| mk
-
---variable types
-structure geomSpaceVar : Type := 
-mk :: (num : ℕ) 
 
 /-
-Test code
+This file implements a simple imperative mathematical physics language.
+The language is in the style of Pierce's Imp but without loops for now. 
 -/
-def g1 := geomSpaceVar.mk 0
-def g2 := geomSpaceVar.mk 1
 
-structure timeSpaceVar : Type :=
-mk :: (num : ℕ) 
+/-
+Variables
+-/
 
-def geomSpaceVarEq : geomSpaceVar → geomSpaceVar → bool
-| v1 v2 := v1.num=v2.num
+-- equality
 
-def timeSpaceVarEq : timeSpaceVar → timeSpaceVar → bool
-| v1 v2 := v1.num=v2.num
-
--- add has_eq instances (decidable equalities)
+/-
+Expressions
+-/
 
 
---GeometricSpaceExpression
---Can be a literal, a variable, or function application expression
-inductive GeometricSpaceExpression
-| GeometricSpaceLiteral (s : geomSpace) : GeometricSpaceExpression
-| GeometricSpaceVariable (v : geomSpaceVar) : GeometricSpaceExpression
--- | GeometricProduct (V1 V2 : geomSpace) : GeometricSpaceExpression
-
-
--- def l1 := GeometricSpaceExpression.GeometricSpaceLiteral Space.Geom1d -- FIX: from phys!!!
--- need to refactor some of the preceding code, the placeholders
-
-
---Same for time spaces
-inductive TimeSpaceExpression
-| TimeSpaceLiteral (V : timeSpace) : TimeSpaceExpression
-| TimeSpaceVariable (v : timeSpaceVar) : TimeSpaceExpression
--- | TimeSpaceFunctionApp (V1 V2 : timeSpace) : TimeSpaceExpression
+/-
+Commands
+-/
 
 --geometric Space Commands
---a geomSpaceAssmt takes in a geom space variable, and a geom space expression
-inductive geomSpaceCmd
-| geomSpaceAssmt (v : geomSpaceVar) (e : GeometricSpaceExpression) : geomSpaceCmd
+--a classicalGeometryAssmt takes in a geom space variable, and a geom space expression
+inductive classicalGeometryCmd
+| classicalGeometryAssmt (v : classicalGeometryVar) (e : classicalGeometryExpression) : classicalGeometryCmd
 | skip
-| geomSpaceSeq (c1 c2 : geomSpaceCmd)
-| geomSpaceIf (b : bool) (c1 c2 : geomSpaceCmd) --boolexpr!
+| classicalGeometrySeq (c1 c2 : classicalGeometryCmd)
+| classicalGeometryIf (b : bool) (c1 c2 : classicalGeometryCmd) --boolexpr!
 
 --time Space commands
-inductive timeSpaceCmd
-| timeSpaceAssmt (v : timeSpaceVar) (e : TimeSpaceExpression) : timeSpaceCmd
+inductive classicalTimeCmd
+| classicalTimeAssmt (v : classicalTimeVar) (e : classicalTimeExpression) : classicalTimeCmd
 | skip
-| timeSpaceSeq (c1 c2 : timeSpaceCmd)
-| timeSpaceIf (b : bool) (c1 c2 : timeSpaceCmd)
+| classicalTimeSeq (c1 c2 : classicalTimeCmd)
+| classicalTimeIf (b : bool) (c1 c2 : classicalTimeCmd)
 
 --Environments are similar to interpretations, assign values to variables
-def geomSpaceEnvironment := (geomSpaceVar → geomSpace)
-def timeSpaceEnvironment := (timeSpaceVar → timeSpace)
 
 
-
---Eval functions take in an expression, and an environment, and then returns a geomSpace
-def geomSpaceEval : GeometricSpaceExpression → geomSpaceEnvironment → geomSpace 
-| (GeometricSpaceExpression.GeometricSpaceLiteral s) e := s
-| (GeometricSpaceExpression.GeometricSpaceVariable v) e := e v
---| (GeometricSpaceExpression.GeometricProduct V1 V2) E := V1 --not sure how to combine spaces yet
-
-def timeSpaceEval : TimeSpaceExpression → timeSpaceEnvironment → timeSpace
-| (TimeSpaceExpression.TimeSpaceLiteral V) E := V
-| (TimeSpaceExpression.TimeSpaceVariable v) E := E v
---| (TimeSpaceExpression.TimeSpaceFunctionApp V1 V2) E := V1
+--Eval functions take in an expression, and an environment, and then returns a classicalGeometry
+def classicalTimeEval : classicalTimeExpression → classicalTimeEnvironment → Space.classicalTime
+| (classicalTimeExpression.classicalTimeLiteral V) E := V
+| (classicalTimeExpression.classicalTimeVariable v) E := E v
+--| (classicalTimeExpression.classicalTimeFunctionApp V1 V2) E := V1
 
 --default environments
-def geomDefaultEnv : geomSpaceEnvironment := λ v, geomSpace.mk 3
-def timeDefaultEnv : timeSpaceEnvironment := λ (v : timeSpaceVar), timeSpace.mk
+def geomDefaultEnv : classicalGeometryEnvironment := λ v, Space.classicalGeometry.mk "world" 3
+def timeDefaultEnv : classicalTimeEnvironment := λ v, Space.classicalTime.mk "world"
 
 
 --Command Eval functions take in a command, an environment, and returns a new updated environment
 --after assigning the new value to the variable 
-def GeomSpaceCmd_eval : geomSpaceCmd → geomSpaceEnvironment → geomSpaceEnvironment 
-| (geomSpaceCmd.geomSpaceAssmt v e) E :=  
-    λ (var : geomSpaceVar),
-        if (geomSpaceVarEq v var) then (geomSpaceEval e E) else (E var)
-| (geomSpaceCmd.skip) E := E
-| (geomSpaceCmd.geomSpaceSeq c1 c2) E :=
-    let i1 := GeomSpaceCmd_eval c1 E in 
-        GeomSpaceCmd_eval c2 i1
-| (geomSpaceCmd.geomSpaceIf b c1 c2) E := 
-    if b then (GeomSpaceCmd_eval c1 E) else 
-        (GeomSpaceCmd_eval c2 E)
+def classicalGeometryCmd_eval : classicalGeometryCmd → classicalGeometryEnvironment → classicalGeometryEnvironment 
+| (classicalGeometryCmd.classicalGeometryAssmt v e) E :=  
+    λ (var : classicalGeometryVar),
+        if (classicalGeometryVarEq v var) then (classicalGeometryEval e E) else (E var)
+| (classicalGeometryCmd.skip) E := E
+| (classicalGeometryCmd.classicalGeometrySeq c1 c2) E :=
+    let i1 := classicalGeometryCmd_eval c1 E in 
+        classicalGeometryCmd_eval c2 i1
+| (classicalGeometryCmd.classicalGeometryIf b c1 c2) E := 
+    if b then (classicalGeometryCmd_eval c1 E) else 
+        (classicalGeometryCmd_eval c2 E)
 
-def TimeSpaceCmd_eval : timeSpaceCmd → timeSpaceEnvironment → timeSpaceEnvironment 
-| (timeSpaceCmd.timeSpaceAssmt v e) E :=
-    λ (var : timeSpaceVar),
-        if (timeSpaceVarEq v var) then (timeSpaceEval e E) else (E var)
-| (timeSpaceCmd.skip) E := E
-| (timeSpaceCmd.timeSpaceSeq c1 c2) E :=
-    let i1 := TimeSpaceCmd_eval c1 E in 
-        TimeSpaceCmd_eval c2 i1
-| (timeSpaceCmd.timeSpaceIf b c1 c2) E := 
-    if b then (TimeSpaceCmd_eval c1 E) else 
-        (TimeSpaceCmd_eval c2 E)
+def classicalTimeCmd_eval : classicalTimeCmd → classicalTimeEnvironment → classicalTimeEnvironment 
+| (classicalTimeCmd.classicalTimeAssmt v e) E :=
+    λ (var : classicalTimeVar),
+        if (classicalTimeVarEq v var) then (classicalTimeEval e E) else (E var)
+| (classicalTimeCmd.skip) E := E
+| (classicalTimeCmd.classicalTimeSeq c1 c2) E :=
+    let i1 := classicalTimeCmd_eval c1 E in 
+        classicalTimeCmd_eval c2 i1
+| (classicalTimeCmd.classicalTimeIf b c1 c2) E := 
+    if b then (classicalTimeCmd_eval c1 E) else 
+        (classicalTimeCmd_eval c2 E)
 
 
-def my_var : geomSpaceVar := geomSpaceVar.mk 0
+def my_var : classicalGeometryVar := classicalGeometryVar.mk 0
 
-def myProgram : geomSpaceCmd := geomSpaceCmd.geomSpaceAssmt my_var (GeometricSpaceExpression.GeometricSpaceLiteral (geomSpace.mk 3))
+def myProgram : classicalGeometryCmd := classicalGeometryCmd.classicalGeometryAssmt my_var (classicalGeometryExpression.GeometricSpaceLiteral (Space.classicalGeometry.mk "" 3))
 
-#reduce GeomSpaceCmd_eval myProgram geomDefaultEnv
+#eval classicalGeometryCmd_eval myProgram geomDefaultEnv
  /- DEMO -/
 
 inductive bvar : Type
