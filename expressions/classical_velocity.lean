@@ -18,9 +18,9 @@ inductive expr : Type
 | div (g : lang.classicalGeometry.expr) (t : lang.classicalTime.expr)
 
 def eval : expr → env → classicalVelocity 
-| (expr.lit v) e := v
-| (expr.var v) e := e v
-| (expr.div g t) e := _ -- TODO: WHAT GOES HERE?
+| (expr.lit v) i := v
+| (expr.var v) i := i v
+| (expr.div g t) i := _ -- TODO: WHAT GOES HERE?
 
 def override : env → var → expr → env
 | i v e := λ r,     if (varEq v r) 
