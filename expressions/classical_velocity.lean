@@ -23,7 +23,7 @@ def eval : expr → env → classicalVelocity
 | (expr.div g t) e := _ -- TODO: WHAT GOES HERE?
 
 def override : env → var → expr → env
-| i v e := λ r,   if (varEq v r) 
+| i v e := λ r,     if (varEq v r) 
                     then (eval e i) 
                     else (i r)
 
