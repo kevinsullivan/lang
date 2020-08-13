@@ -1,19 +1,28 @@
 import ...phys.src.classical_time
 
-structure classicalTimeVar : Type :=
+namespace lang.classicalTime
+
+structure var : Type :=
 mk :: (num : ℕ) 
 
-def classicalTimeVarEq : classicalTimeVar → classicalTimeVar → bool
+def varEq : var → var → bool
 | v1 v2 := v1.num=v2.num
 
-def classicalTimeEnvironment := (classicalTimeVar → classicalTime)
+def env := (var → classicalTime)
 
-def init_classicalTimeEnvironment := λ v : classicalTimeVar, worldTime
+inductive expr
+| lit (v : classicalTime) 
+| var (v : var)
 
-inductive classicalTimeExpression
-| classicalTimeLiteral (v : classicalTime) : classicalTimeExpression
-| classicalTimeVariable (v : classicalTimeVar) : classicalTimeExpression
+def eval : expr → env → classicalTime
+| (expr.lit V) E := V
+| (expr.var v) E := E v
 
-def classicalTimeEval : classicalTimeExpression → classicalTimeEnvironment → classicalTime
-| (classicalTimeExpression.classicalTimeLiteral V) E := V
-| (classicalTimeExpression.classicalTimeVariable v) E := E v
+def override : env → var → expr → env   -- clone
+| i v e := λ r,     if (varEq v r) 
+                    then (eval e i) 
+                    else (i r)
+
+def init := λ v : var, worldTime
+
+end lang.classicalTime

@@ -2,17 +2,31 @@ import ...phys.src.classical_velocity
 import .classical_geometry
 import .classical_time
 
-structure classicalVelocityVar : Type :=
+namespace lang.classicalVelocity
+
+structure var : Type :=
 mk :: (num : ℕ)
 
-def classicalVelocityVarEq : classicalVelocityVar → classicalVelocityVar → bool
+def varEq : var → var → bool
 | v1 v2 := v1.num=v2.num
 
-def classicalVelocityEnvironment := (classicalVelocityVar → classicalVelocity)
+def env := (var → classicalVelocity)
 
-def init_classicalVelocityEnvironment := λ v : classicalTimeVar, worldTime
+inductive expr : Type
+| lit (v : classicalVelocity)
+| var (v : var)
+| div (g : lang.classicalGeometry.expr) (t : lang.classicalTime.expr)
 
-inductive classicalVelocityExpression : Type
-| classicalVelocityLiteral (v : classicalVelocity)
-| classicalVelocityVar (v : classicalVelocityVar)
-| classicalVelocityExpr (g : classicalGeometryExpression) (t : classicalTimeExpression)
+def eval : expr → env → classicalVelocity 
+| (expr.lit v) e := v
+| (expr.var v) e := e v
+| (expr.div g t) e := _ -- TODO: WHAT GOES HERE?
+
+def override : env → var → expr → env
+| i v e := λ r,   if (varEq v r) 
+                    then (eval e i) 
+                    else (i r)
+
+def init := λ v : var, worldVelocity
+
+end lang.classicalVelocity
