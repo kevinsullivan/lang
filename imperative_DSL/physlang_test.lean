@@ -3,7 +3,7 @@ import .physlang
 /-
 Test code
 -/
-def g1 := classicalGeometryVar.mk 0
+def g1 := lang.classicalGeometry.var.mk 0
 def g2 := classicalGeometryVar.mk 1
 
 --default environments

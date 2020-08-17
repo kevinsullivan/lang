@@ -20,11 +20,11 @@ open cmd
 
 def cmdEval : cmd → env → env
 | (classicalGeometryAssmt (v : lang.classicalGeometry.var) (e : lang.classicalGeometry.expr)) i := 
-    assignClassicalGeometry i v e
+    env.mk (lang.classicalGeometry.override (getClassicalGeometry i) v e) (getClassicalTime i) (getClassicalVelocity i)
 | (classicalTimeAssmt (v : lang.classicalTime.var) (e : lang.classicalTime.expr)) i := 
-    i -- TODO: stub
+    env.mk (getClassicalGeometry i) (lang.classicalTime.override (getClassicalTime i) v e) (getClassicalVelocity i) -- TODO: stub
 | (classicalVelocityAssmt (v : lang.classicalVelocity.var) (e : lang.classicalVelocity.expr)) i := 
-    i -- TODO: stub
+    env.mk (getClassicalGeometry i) (getClassicalTime i) (lang.classicalVelocity.override (getClassicalVelocity i) v e) -- TODO: stub
 | (if_then_else (b : bExpr) (t : cmd) (f : cmd)) i := 
     i -- TODO: stub
 | (seq (c1 : cmd) (c2 : cmd)) i := 
