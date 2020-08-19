@@ -1,7 +1,7 @@
 import ..imperative_DSL.environment
 
 open lang.classicalVelocity
-def evalVelocity : lang.classicalVelocity.expr → environment.env → classicalVelocity 
+def classicalVelocityEval : lang.classicalVelocity.expr → environment.env → classicalVelocity 
 | (expr.lit v) i := v
 | (lang.classicalVelocity.expr.var v) i := i.v v
 | (expr.div g t) i := 
@@ -22,12 +22,12 @@ def evalVelocity : lang.classicalVelocity.expr → environment.env → classical
 def assignVelocity : environment.env → lang.classicalVelocity.var → lang.classicalVelocity.expr → environment.env
 | i v e := environment.env.mk i.g i.t 
     (λ r,     if (varEq v r) 
-        then (evalVelocity e i) 
+        then (classicalVelocityEval e i) 
         else (i.v r))
 
 open lang.classicalTime
 
-def evalTime : lang.classicalTime.expr → environment.env → classicalTime
+def classicalTimeEval : lang.classicalTime.expr → environment.env → classicalTime
 | (lang.classicalTime.expr.lit V) i := V
 | (lang.classicalTime.expr.var v) i := i.t v
 
@@ -35,14 +35,14 @@ def assignTime : environment.env → lang.classicalTime.var → lang.classicalTi
 | i v e := environment.env.mk i.g 
     (λ r,     
     if (varEq v r) 
-        then (evalTime e i) 
+        then (classicalTimeEval e i) 
         else (i.t r))
     i.v 
     
 
 open lang.classicalGeometry
 
-def evalGeometry : lang.classicalGeometry.expr → environment.env → classicalGeometry 
+def classicalGeometryEval : lang.classicalGeometry.expr → environment.env → classicalGeometry 
 | (lang.classicalGeometry.expr.lit s) i := s
 | (lang.classicalGeometry.expr.var v) i := i.g v
 
@@ -51,7 +51,7 @@ def assignGeometry : environment.env → lang.classicalGeometry.var → lang.cla
 | i v e := environment.env.mk 
     (λ r,     
     if (varEq v r) 
-        then (evalGeometry e i) 
+        then (classicalGeometryEval e i) 
         else (i.g r)) 
     i.t i.v
     
