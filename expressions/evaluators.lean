@@ -19,7 +19,7 @@ def evalVelocity : lang.classicalVelocity.expr → environment.env → classical
         end
     end
 
-def overrideVelocity : environment.env → lang.classicalVelocity.var → lang.classicalVelocity.expr → environment.env
+def assignVelocity : environment.env → lang.classicalVelocity.var → lang.classicalVelocity.expr → environment.env
 | i v e := environment.env.mk i.g i.t 
     (λ r,     if (varEq v r) 
         then (evalVelocity e i) 
@@ -31,7 +31,7 @@ def evalTime : lang.classicalTime.expr → environment.env → classicalTime
 | (lang.classicalTime.expr.lit V) i := V
 | (lang.classicalTime.expr.var v) i := i.t v
 
-def overrideTime : environment.env → lang.classicalTime.var → lang.classicalTime.expr → environment.env
+def assignTime : environment.env → lang.classicalTime.var → lang.classicalTime.expr → environment.env
 | i v e := environment.env.mk i.g 
     (λ r,     
     if (varEq v r) 
@@ -47,7 +47,7 @@ def evalGeometry : lang.classicalGeometry.expr → environment.env → classical
 | (lang.classicalGeometry.expr.var v) i := i.g v
 
 
-def overrideGeometry : environment.env → lang.classicalGeometry.var → lang.classicalGeometry.expr → environment.env
+def assignGeometry : environment.env → lang.classicalGeometry.var → lang.classicalGeometry.expr → environment.env
 | i v e := environment.env.mk 
     (λ r,     
     if (varEq v r) 

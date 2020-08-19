@@ -15,16 +15,6 @@ inductive expr
 
 def env := (var → classicalGeometry)
 
-def eval : expr → env → classicalGeometry 
-| (expr.lit s) e := s
-| (expr.var v) e := e v
---| (classicalGeometryexpr.GeometricProduct V1 V2) E := V1 --not sure how to combine spaces yet
-
-def override : env → var → expr → env
-| i v e := λ r,   if (varEq v r) 
-                    then (eval e i) 
-                    else (i r)
-
 def init := λ v : var, worldGeometry
 
 end lang.classicalGeometry
