@@ -28,4 +28,3 @@ inductive bCmd : Type
 def cEval : benv → bCmd → benv 
 | i0 (bCmd.bAssm v e)  := update_benv i0 v (bEval e i0)
 | i0 (bCmd.bSeq c1 c2) := (cEval (cEval i0 c1) c2)
-

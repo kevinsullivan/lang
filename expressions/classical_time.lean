@@ -1,4 +1,4 @@
-import .....phys.src.classical_time
+import ...phys.src.classical_time
 
 namespace lang.classicalTime
 
@@ -13,15 +13,6 @@ def env := (var → classicalTime)
 inductive expr
 | lit (v : classicalTime) 
 | var (v : var)
-
-def eval : expr → env → classicalTime
-| (expr.lit V) E := V
-| (expr.var v) E := E v
-
-def override : env → var → expr → env   -- clone
-| i v e := λ r,     if (varEq v r) 
-                    then (eval e i) 
-                    else (i r)
 
 def init := λ v : var, worldTime
 

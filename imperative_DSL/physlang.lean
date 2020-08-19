@@ -1,4 +1,5 @@
 import .environment
+import ..expressions.evaluators
 import ..expressions.classical_geometry
 import ..expressions.classical_time
 import ..expressions.classical_velocity
@@ -13,18 +14,18 @@ inductive cmd : Type
 | classicalGeometryAssmt (v : lang.classicalGeometry.var) (e : lang.classicalGeometry.expr) 
 | classicalTimeAssmt (v : lang.classicalTime.var) (e : lang.classicalTime.expr) 
 | classicalVelocityAssmt (v : lang.classicalVelocity.var) (e : lang.classicalVelocity.expr)
-| if_then_else (b : bExpr) (t f : cmd)
+| if_then_else (b : bExpr) (bI : benv) (t f : cmd)
 | seq (c1 c2 : cmd)
         
 open cmd 
 
-def cmdEval : cmd → env → env
+def cmdEval : cmd → environment.env → environment.env
 | (classicalGeometryAssmt (v : lang.classicalGeometry.var) (e : lang.classicalGeometry.expr)) i := 
-    assignClassicalGeometry i v e
+    assignGeometry i v e
 | (classicalTimeAssmt (v : lang.classicalTime.var) (e : lang.classicalTime.expr)) i := 
-    assignClassicalTime i v e
+    assignTime i v e
 | (classicalVelocityAssmt (v : lang.classicalVelocity.var) (e : lang.classicalVelocity.expr)) i := 
-    assignClassicalVelocity i v e
+    assignVelocity i v e
 | (if_then_else (b : bExpr) (bI : benv) (t : cmd) (f : cmd)) i := 
     if (bEval b bI) then (cmdEval t i) else (cmdEval f i)
 | (seq (c1 : cmd) (c2 : cmd)) i0 := 
