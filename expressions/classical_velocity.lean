@@ -20,7 +20,19 @@ inductive expr : Type
 def eval : expr → env → classicalVelocity 
 | (expr.lit v) i := v
 | (expr.var v) i := i v
-| (expr.div g t) i := _ -- TODO: WHAT GOES HERE?
+| (expr.div g t) i := 
+    match g with
+    | (lang.classicalGeometry.expr.lit e) := 
+        match t with
+        | (lang.classicalTime.expr.lit e2) := classicalVelocity.mk 0 e e2
+        | (lang.classicalTime.expr.var v2) := 
+            classicalVelocity.mk 0 (classicalGeometry.mk 0 3) (classicalTime.mk 0)
+        end
+    | (lang.classicalGeometry.expr.var v) := classicalVelocity.mk 0 (classicalGeometry.mk 0 3) (classicalTime.mk 0)
+    end
+
+ -- TODO: WHAT GOES HERE? --match on dimension of the geometric expression, 
+--create a velocity expression of the same dimension, we don't have the constructor for classicalvelocity yet.
 
 def override : env → var → expr → env
 | i v e := λ r,     if (varEq v r) 

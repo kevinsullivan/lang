@@ -1,4 +1,4 @@
-import .....phys.src.classical_time
+import ...phys.src.classical_time
 
 namespace lang.classicalTime
 

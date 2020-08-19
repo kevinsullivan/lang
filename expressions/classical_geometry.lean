@@ -1,4 +1,4 @@
-import .....phys.src.classical_geometry
+import ...phys.src.classical_geometry
 
 namespace lang.classicalGeometry
 
