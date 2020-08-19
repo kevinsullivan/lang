@@ -18,4 +18,6 @@ def geomDefaultEnv : env := env.mk
 
 def my_var : lang.classicalGeometry.var := lang.classicalGeometry.var.mk 0
 def myProgram : cmd := cmd.classicalGeometryAssmt my_var (lang.classicalGeometry.expr.lit (classicalGeometry.mk 0 3))
+
 #eval cmdEval myProgram geomDefaultEnv
+
