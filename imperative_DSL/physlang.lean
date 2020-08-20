@@ -1,8 +1,16 @@
 import .environment
-import ..expressions.evaluators
+import ..eval.accelerationEval
+import ..eval.geometryEval
+import ..eval.timeEval
+import ..eval.velocityEval
 import ..expressions.classical_geometry
 import ..expressions.classical_time
 import ..expressions.classical_velocity
+import ..expressions.classical_acceleration
+import ..override.geomOverride
+import ..override.timeOverride
+import ..override.velocityOverride
+import ..override.accelerationOverride
 import ..expressions.boolean
 
 
@@ -15,6 +23,7 @@ inductive cmd : Type
 | classicalGeometryAssmt (v : lang.classicalGeometry.var) (e : lang.classicalGeometry.expr) 
 | classicalTimeAssmt (v : lang.classicalTime.var) (e : lang.classicalTime.expr) 
 | classicalVelocityAssmt (v : lang.classicalVelocity.var) (e : lang.classicalVelocity.expr)
+| classicalAccelerationAssmt (a : lang.classicalAcceleration.var) (e : lang.classicalAcceleration.expr)
 | if_then_else (b : bExpr) (t f : cmd)
 | seq (c1 c2 : cmd)
         
@@ -27,6 +36,8 @@ def cmdEval : cmd → environment.env → environment.env
     assignTime i v e
 | (classicalVelocityAssmt (v : lang.classicalVelocity.var) (e : lang.classicalVelocity.expr)) i := 
     assignVelocity i v e
+| (classicalAccelerationAssmt (v : lang.classicalAcceleration.var) (e : lang.classicalAcceleration.expr)) i :=
+    assignAcceleration i v e
 | (if_then_else (b : bExpr)  (t : cmd) (f : cmd)) i := 
     i
     --if (bEval b bI) then (cmdEval t i) else (cmdEval f i) - BEN AND YANNI FILL IN
