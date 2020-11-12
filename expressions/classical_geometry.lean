@@ -5,6 +5,12 @@ namespace lang.classicalGeometry
 structure var : Type := 
 mk :: (num : ℕ) 
 
+structure pointVar : Type :=
+mk :: (num : ℕ)
+
+structure vecVar : Type :=
+mk :: (num : ℕ)
+
 def varEq : var → var → bool
 | v1 v2 := v1.num = v2.num -- implicit coercion here
 
