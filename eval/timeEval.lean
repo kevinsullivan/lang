@@ -3,7 +3,26 @@ import ..imperative_DSL.environment
 
 open lang.classicalTime
 
-def classicalTimeEval : lang.classicalTime.expr → environment.env → classicalTime
-| (lang.classicalTime.expr.lit V) i := V
-| (lang.classicalTime.expr.var v) i := i.t v
+attribute [reducible]
+def classicalTimeEval : lang.classicalTime.spaceExpr → environment.env → classicalTime
+| (lang.classicalTime.spaceExpr.lit V) i := V
+| (lang.classicalTime.spaceExpr.var v) i := i.t.sp v
+
+attribute [reducible]
+def classicalTimeFrameEval : lang.classicalTime.frameExpr → environment.env → classicalTimeFrame
+| (lang.classicalTime.frameExpr.lit V) i := V
+| (lang.classicalTime.frameExpr.var v) i := i.t.fr v
+
+
+attribute [reducible]
+def classicalTimeCoordinateVectorEval : lang.classicalTime.CoordinateVectorExpr → environment.env → classicalTimeCoordinateVector
+| (lang.classicalTime.CoordinateVectorExpr.lit V) i := V
+| (lang.classicalTime.CoordinateVectorExpr.var v) i := i.t.vec v
+
+
+attribute [reducible]
+def classicalTimeCoordinatePointEval : 
+    lang.classicalTime.CoordinatePointExpr → environment.env → classicalTimeCoordinatePoint
+| (lang.classicalTime.CoordinatePointExpr.lit V) i := V
+| (lang.classicalTime.CoordinatePointExpr.var v) i := i.t.pt v
 
