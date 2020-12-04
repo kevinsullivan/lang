@@ -17,9 +17,7 @@ mk ::   --(g: lang.classicalGeometry.spaceEnv)
 
 def init_env :env := --env.mk 
 --                    lang.classicalGeometry.init
-                    ⟨⟨lang.classicalTime.initSp, 
-                        lang.classicalTime.initFr⟩,⟨lang.measurementSystem.init⟩⟩
+                   ⟨lang.classicalTime.initEnv, ⟨lang.measurementSystem.init⟩⟩
 --                    lang.classicalVelocity.init
 --                    lang.classicalAcceleration.init
-
 end environment

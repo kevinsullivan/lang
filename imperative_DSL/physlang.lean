@@ -23,9 +23,24 @@ The language is in the style of Pierce's Imp but without loops for now.
 
 inductive cmd : Type
 --| classicalGeometryAssmt (v : lang.classicalGeometry.var) (e : lang.classicalGeometry.expr) 
-| classicalTimeAssmt (v : lang.classicalTime.spaceVar) (e : lang.classicalTime.spaceExpr) 
-| classicalTimeFrameAssmt (f : lang.classicalTime.frameVar) (e : lang.classicalTime.frameExpr)
-| measurementSystemAssmt (v : lang.measurementSystem.measureVar) (e : lang.measurementSystem.measureExpr)
+| classicalTimeAssmt 
+    (v : lang.classicalTime.spaceVar) 
+    (e : lang.classicalTime.spaceExpr) 
+| classicalTimeFrameAssmt 
+    (v : lang.classicalTime.frameVar) 
+    (e : lang.classicalTime.frameExpr)
+| classicalTimeCoordinatePointAssmt 
+    (v : lang.classicalTime.CoordinatePointVar) 
+    (e : lang.classicalTime.CoordinatePointExpr)
+| classicalTimeCoordinateVectorAssmt 
+    (v : lang.classicalTime.CoordinateVectorVar) 
+    (e : lang.classicalTime.CoordinateVectorExpr)
+| measurementSystemAssmt 
+    (v : lang.measurementSystem.measureVar) 
+    (e : lang.measurementSystem.measureExpr)
+
+
+
 --| classicalVelocityAssmt (v : lang.classicalVelocity.var) (e : lang.classicalVelocity.expr)
 --| classicalAccelerationAssmt (a : lang.classicalAcceleration.var) (e : lang.classicalAcceleration.expr)
 | if_then_else (b : bExpr) (t f : cmd)
@@ -38,6 +53,8 @@ def cmdEval : cmd → environment.env → environment.env
     assignGeometry i v e-/
 | (classicalTimeAssmt v e) i := assignTimeSpace i v e
 | (classicalTimeFrameAssmt v e) i := assignTimeFrame i v e
+| (classicalTimeCoordinatePointAssmt v e) i := assignTimePoint i v e
+| (classicalTimeCoordinateVectorAssmt v e) i := assignTimeVector i v e
 | (measurementSystemAssmt v e) i := assignMeasurementSystem i v e
 /-| (classicalVelocityAssmt (v : lang.classicalVelocity.var) (e : lang.classicalVelocity.expr)) i := 
     assignVelocity i v e

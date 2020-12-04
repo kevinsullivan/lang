@@ -7,6 +7,8 @@ mk :: (num : ℕ)
 
 structure spaceVar extends var
 
+def myvar : spaceVar := ⟨⟨2⟩⟩
+
 def p : spaceVar := ⟨⟨1⟩⟩
 
 inductive spaceExpr
@@ -14,7 +16,6 @@ inductive spaceExpr
 | var (v : spaceVar)
 abbreviation spaceEnv := spaceVar → classicalTime
 abbreviation spaceEval := spaceExpr → spaceEnv → classicalTime
-
 
 structure frameVar extends var
 inductive frameExpr
@@ -24,95 +25,52 @@ abbreviation frameEnv := frameVar → classicalTimeFrame
 abbreviation frameEval := frameExpr → frameEnv → classicalTimeFrame
 
 
-/-
-structure frameVar (sp : spaceExpr) extends var
-inductive frameExpr
-| lit {t : classicalTime} (f : classicalTimeFrame t)
-| var {sp : spaceExpr} (v : frameVar sp) 
-
-abbreviation frameEnv_sp 
-    (spe : spaceExpr) (eval : spaceEval) (env : spaceEnv) :=
-    ∀fv : frameVar spe, 
-        classicalTimeFrame (eval spe env)
-abbreviation frameEnv (env : spaceEnv) 
-    := 
-        ∀eval : spaceEval,
-        ∀spe : spaceExpr, 
-        frameEnv_sp spe eval env
-abbreviation frameEval (spe : spaceExpr) :=
-    ∀fexpr : frameExpr, 
-    ∀env : spaceEnv,
-    ∀fe : frameEnv env,
-    ∀eval : spaceEval,
-        classicalTimeFrame (eval spe env)
-
-
 --abbreviation
 
-/-
-structure vectorVar (sp : spaceExpr) extends var 
-inductive vectorExpr
-| lit {t : classicalTime} (f : classicalTimeCoordinateVector t)
-| var {sp : spaceExpr} (v : vectorVar sp) 
 
-abbreviation vectorEnv_sp 
-    (spe : spaceExpr) (eval : spaceEval) (env : spaceEnv) :=
-    ∀fv : vectorVar spe, 
-        classicalTimeCoordinateVector (eval spe env)
-abbreviation vectorEnv (env : spaceEnv) 
-    := 
-        ∀eval : spaceEval,
-        ∀spe : spaceExpr, 
-        vectorEnv_sp spe eval env
-abbreviation vectorEval (spe : spaceExpr) :=
-    ∀fexpr : vectorExpr, 
-    ∀env : spaceEnv,
-    ∀fe : vectorEnv env,
-    ∀eval : spaceEval,
-        classicalTimeCoordinateVector (eval spe env)
+structure CoordinateVectorVar extends var 
+inductive CoordinateVectorExpr
+| lit (f : classicalTimeCoordinateVector)
+| var (v : CoordinateVectorVar) 
+abbreviation CoordinateVectorEnv := CoordinateVectorVar → classicalTimeCoordinateVector
+abbreviation CoordinateVectorEval := CoordinateVectorExpr → CoordinateVectorEnv → classicalTimeCoordinateVector
 
-
-structure pointVar (sp : spaceExpr) extends var
-inductive pointExpr
-| lit {t : classicalTime} (f : classicalTimeCoordinateVector t)
-| var {sp : spaceExpr} (v : vectorVar sp) 
-
-abbreviation pointEnv_sp 
-    (spe : spaceExpr) (eval : spaceEval) (env : spaceEnv) :=
-    ∀p : pointVar spe, 
-        classicalTimeCoordinatePoint (eval spe env)
-abbreviation pointEnv (env : spaceEnv) 
-    := 
-        ∀eval : spaceEval,
-        ∀spe : spaceExpr, 
-        pointEnv_sp spe eval env
-abbreviation pointEval (spe : spaceExpr) :=
-    ∀fexpr : pointExpr, 
-    ∀env : spaceEnv,
-    ∀fe : pointEnv env,
-    ∀eval : spaceEval,
-        classicalTimeCoordinatePoint (eval spe env)
--/-/
+structure CoordinatePointVar extends var
+inductive CoordinatePointExpr
+| lit (f : classicalTimeCoordinatePoint)
+| var(v : CoordinatePointVar ) 
+abbreviation pointEnv := CoordinatePointVar → classicalTimeCoordinatePoint
+abbreviation pointEval := CoordinatePointExpr → pointEnv → classicalTimeCoordinatePoint
 
 def spaceVarEq : spaceVar → spaceVar → bool
 | v1 v2 := v1.num=v2.num
-/-def vectorVarEq {sp : spaceExpr} : vectorVar sp → vectorVar sp → bool
+def CoordinateVectorVarEq : CoordinateVectorVar → CoordinateVectorVar → bool
 | v1 v2 := v1.num=v2.num
-def pointVarEq {sp : spaceExpr} : pointVar sp → pointVar sp → bool
-| v1 v2 := v1.num=v2.num-/
+def pointVarEq : CoordinatePointVar → CoordinatePointVar → bool
+| v1 v2 := v1.num=v2.num
 def frameVarEq : frameVar → frameVar → bool
 | v1 v2 := v1.num=v2.num
 
 structure env : Type :=
 (sp : spaceEnv)
-(fr : frameEnv)
---(vec : vectorEnv sp)
---(pt : pointEnv sp)
+(fr : frameEnv )
+(vec : CoordinateVectorEnv)
+(pt : pointEnv)
 
 
 
-noncomputable def initSp := λ v : spaceVar, worldTime
-noncomputable def initFr := λ v : frameVar, classicalTime.stdFrame worldTime
-
+noncomputable def initSp := λ v : spaceVar, classicalTime.build 9999
+noncomputable def initFr := 
+    λ v : frameVar, 
+        classicalTime.stdFrame (initSp ⟨⟨9999⟩⟩)
+noncomputable def initVec := 
+    λ v : CoordinateVectorVar, 
+        classicalTimeCoordinateVector.build (initSp ⟨⟨9999⟩⟩) (initFr ⟨⟨9999⟩⟩) ⟨[1], by refl⟩
+noncomputable def initPt := 
+    λ v : CoordinatePointVar, 
+        classicalTimeCoordinatePoint.build (initSp ⟨⟨9999⟩⟩) (initFr ⟨⟨9999⟩⟩) ⟨[1], by refl⟩
+noncomputable def 
+    initEnv : env := 
+        ⟨initSp, initFr, initVec, initPt⟩
 
 end lang.classicalTime
