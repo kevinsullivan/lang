@@ -24,6 +24,13 @@ inductive frameExpr
 abbreviation frameEnv := frameVar → classicalTimeFrame
 abbreviation frameEval := frameExpr → frameEnv → classicalTimeFrame
 
+structure ScalarVar extends var
+inductive ScalarExpr
+| lit (f : classicalTimeScalar)
+| var (v : ScalarVar) 
+abbreviation scalarEnv := ScalarVar → classicalTimeScalar
+abbreviation scalarEval := ScalarExpr → scalarEnv → classicalTimeScalar
+
 
 --abbreviation
 
@@ -50,12 +57,15 @@ def pointVarEq : CoordinatePointVar → CoordinatePointVar → bool
 | v1 v2 := v1.num=v2.num
 def frameVarEq : frameVar → frameVar → bool
 | v1 v2 := v1.num=v2.num
+def scalarVarEq : ScalarVar → ScalarVar → bool
+| v1 v2 := v1.num=v2.num
 
 structure env : Type :=
 (sp : spaceEnv)
 (fr : frameEnv )
 (vec : CoordinateVectorEnv)
 (pt : pointEnv)
+(s : scalarEnv)
 
 
 
@@ -69,8 +79,11 @@ noncomputable def initVec :=
 noncomputable def initPt := 
     λ v : CoordinatePointVar, 
         classicalTimeCoordinatePoint.build (initSp ⟨⟨9999⟩⟩) (initFr ⟨⟨9999⟩⟩) ⟨[1], by refl⟩
+noncomputable def initScalar := 
+    λ v : ScalarVar, 
+        classicalTimeScalar.build (initSp ⟨⟨9999⟩⟩) ⟨[1],rfl⟩
 noncomputable def 
     initEnv : env := 
-        ⟨initSp, initFr, initVec, initPt⟩
+        ⟨initSp, initFr, initVec, initPt, initScalar⟩
 
 end lang.classicalTime

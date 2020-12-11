@@ -4,11 +4,11 @@ import .environment
 --import ..eval.timeEval
 --import ..eval.velocityEval
 import ..expressions.measurementSystem
---import ..expressions.classical_geometry
+import ..expressions.classical_geometry
 import ..expressions.classical_time
 --import ..expressions.classical_velocity
 --import ..expressions.classical_acceleration
---import ..override.geomOverride
+import ..override.geomOverride
 import ..override.timeOverride
 import ..override.measurementSystemOverride
 --import ..override.velocityOverride
@@ -29,12 +29,30 @@ inductive cmd : Type
 | classicalTimeFrameAssmt 
     (v : lang.classicalTime.frameVar) 
     (e : lang.classicalTime.frameExpr)
+| classicalTimeScalarAssmt
+    (v : lang.classicalTime.ScalarVar)
+    (e : lang.classicalTime.ScalarExpr)
 | classicalTimeCoordinatePointAssmt 
     (v : lang.classicalTime.CoordinatePointVar) 
     (e : lang.classicalTime.CoordinatePointExpr)
 | classicalTimeCoordinateVectorAssmt 
     (v : lang.classicalTime.CoordinateVectorVar) 
     (e : lang.classicalTime.CoordinateVectorExpr)
+| euclideanGeometry3Assmt 
+    (v : lang.euclideanGeometry3.spaceVar) 
+    (e : lang.euclideanGeometry3.spaceExpr) 
+| euclideanGeometry3FrameAssmt 
+    (v : lang.euclideanGeometry3.frameVar) 
+    (e : lang.euclideanGeometry3.frameExpr)
+| euclideanGeometry3ScalarAssmt
+    (v : lang.euclideanGeometry3.ScalarVar)
+    (e : lang.euclideanGeometry3.ScalarExpr)
+| euclideanGeometry3CoordinatePointAssmt 
+    (v : lang.euclideanGeometry3.CoordinatePointVar) 
+    (e : lang.euclideanGeometry3.CoordinatePointExpr)
+| euclideanGeometry3CoordinateVectorAssmt 
+    (v : lang.euclideanGeometry3.CoordinateVectorVar) 
+    (e : lang.euclideanGeometry3.CoordinateVectorExpr)
 | measurementSystemAssmt 
     (v : lang.measurementSystem.measureVar) 
     (e : lang.measurementSystem.measureExpr)
@@ -53,8 +71,14 @@ def cmdEval : cmd → environment.env → environment.env
     assignGeometry i v e-/
 | (classicalTimeAssmt v e) i := assignTimeSpace i v e
 | (classicalTimeFrameAssmt v e) i := assignTimeFrame i v e
+| (classicalTimeScalarAssmt v e) i := assignTimeScalar i v e
 | (classicalTimeCoordinatePointAssmt v e) i := assignTimePoint i v e
 | (classicalTimeCoordinateVectorAssmt v e) i := assignTimeVector i v e
+| (euclideanGeometry3Assmt v e) i := assignGeometry3Space i v e
+| (euclideanGeometry3FrameAssmt v e) i := assignGeometry3Frame i v e
+| (euclideanGeometry3ScalarAssmt v e) i := assignGeometry3Scalar i v e
+| (euclideanGeometry3CoordinatePointAssmt v e) i := assignGeometry3Point i v e
+| (euclideanGeometry3CoordinateVectorAssmt v e) i := assignGeometry3Vector i v e
 | (measurementSystemAssmt v e) i := assignMeasurementSystem i v e
 /-| (classicalVelocityAssmt (v : lang.classicalVelocity.var) (e : lang.classicalVelocity.expr)) i := 
     assignVelocity i v e

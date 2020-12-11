@@ -13,6 +13,10 @@ def classicalTimeFrameEval : lang.classicalTime.frameExpr → environment.env �
 | (lang.classicalTime.frameExpr.lit V) i := V
 | (lang.classicalTime.frameExpr.var v) i := i.t.fr v
 
+attribute [reducible]
+def classicalTimeScalarEval : lang.classicalTime.ScalarExpr → environment.env → classicalTimeScalar
+| (lang.classicalTime.ScalarExpr.lit V) i := V
+| (lang.classicalTime.ScalarExpr.var v) i := i.t.s v
 
 attribute [reducible]
 def classicalTimeCoordinateVectorEval : lang.classicalTime.CoordinateVectorExpr → environment.env → classicalTimeCoordinateVector
