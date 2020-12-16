@@ -29,6 +29,9 @@ inductive cmd : Type
 | classicalTimeFrameAssmt 
     (v : lang.classicalTime.frameVar) 
     (e : lang.classicalTime.frameExpr)
+| classicalTimeTransformAssmt
+    (v : lang.classicalTime.transformVar)
+    (e : lang.classicalTime.transformExpr)
 | classicalTimeScalarAssmt
     (v : lang.classicalTime.ScalarVar)
     (e : lang.classicalTime.ScalarExpr)
@@ -71,6 +74,7 @@ def cmdEval : cmd → environment.env → environment.env
     assignGeometry i v e-/
 | (classicalTimeAssmt v e) i := assignTimeSpace i v e
 | (classicalTimeFrameAssmt v e) i := assignTimeFrame i v e
+| (classicalTimeTransformAssmt v e) i := assignTimeTransform i v e
 | (classicalTimeScalarAssmt v e) i := assignTimeScalar i v e
 | (classicalTimeCoordinatePointAssmt v e) i := assignTimePoint i v e
 | (classicalTimeCoordinateVectorAssmt v e) i := assignTimeVector i v e
