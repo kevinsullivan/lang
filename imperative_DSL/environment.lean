@@ -1,4 +1,4 @@
---import ..expressions.classical_geometry
+import ..expressions.classical_geometry
 import ..expressions.classical_time
 --import ..expressions.classical_velocity
 import ..expressions.boolean
@@ -11,13 +11,14 @@ namespace environment
 structure env : Type :=
 mk ::   --(g: lang.classicalGeometry.spaceEnv)
         (t: lang.classicalTime.env)
+        (g: lang.euclideanGeometry3.env)
         (ms: lang.measurementSystem.env)
         --(v: lang.classicalVelocity.env)
         --(a: lang.classicalAcceleration.env)
 
 def init_env :env := --env.mk 
 --                    lang.classicalGeometry.init
-                   ⟨lang.classicalTime.initEnv, ⟨lang.measurementSystem.init⟩⟩
+                   ⟨lang.classicalTime.initEnv, lang.euclideanGeometry3.initEnv, ⟨lang.measurementSystem.init⟩⟩
 --                    lang.classicalVelocity.init
 --                    lang.classicalAcceleration.init
 end environment
