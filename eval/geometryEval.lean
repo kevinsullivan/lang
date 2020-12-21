@@ -14,6 +14,12 @@ def euclideanGeometry3FrameEval : lang.euclideanGeometry3.frameExpr → environm
 | (lang.euclideanGeometry3.frameExpr.var v) i := i.g.fr v
 
 attribute [reducible]
+def euclideanGeometry3TransformEval : lang.euclideanGeometry3.TransformExpr → environment.env → euclideanGeometry3Transform
+| (lang.euclideanGeometry3.TransformExpr.lit V) i := V
+| (lang.euclideanGeometry3.TransformExpr.var v) i := i.g.tr v
+
+
+attribute [reducible]
 def euclideanGeometry3ScalarEval : lang.euclideanGeometry3.ScalarExpr → environment.env → euclideanGeometry3Scalar
 | (lang.euclideanGeometry3.ScalarExpr.lit V) i := V
 | (lang.euclideanGeometry3.ScalarExpr.var v) i := i.g.s v

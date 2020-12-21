@@ -47,6 +47,9 @@ inductive cmd : Type
 | euclideanGeometry3FrameAssmt 
     (v : lang.euclideanGeometry3.frameVar) 
     (e : lang.euclideanGeometry3.frameExpr)
+| euclideanGeometry3TransformAssmt
+    (v : lang.euclideanGeometry3.TransformVar)
+    (e : lang.euclideanGeometry3.TransformExpr)
 | euclideanGeometry3ScalarAssmt
     (v : lang.euclideanGeometry3.ScalarVar)
     (e : lang.euclideanGeometry3.ScalarExpr)
@@ -80,6 +83,7 @@ def cmdEval : cmd → environment.env → environment.env
 | (classicalTimeCoordinateVectorAssmt v e) i := assignTimeVector i v e
 | (euclideanGeometry3Assmt v e) i := assignGeometry3Space i v e
 | (euclideanGeometry3FrameAssmt v e) i := assignGeometry3Frame i v e
+| (euclideanGeometry3TransformAssmt v e) i := assignGeometry3Transform i v e
 | (euclideanGeometry3ScalarAssmt v e) i := assignGeometry3Scalar i v e
 | (euclideanGeometry3CoordinatePointAssmt v e) i := assignGeometry3Point i v e
 | (euclideanGeometry3CoordinateVectorAssmt v e) i := assignGeometry3Vector i v e

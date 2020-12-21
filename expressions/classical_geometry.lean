@@ -24,6 +24,14 @@ inductive frameExpr
 abbreviation frameEnv := frameVar → euclideanGeometry3Frame
 abbreviation frameEval := frameExpr → frameEnv → euclideanGeometry3Frame
 
+structure TransformVar extends var
+inductive TransformExpr
+| lit (t : euclideanGeometry3Transform)
+| var (v : TransformVar)
+abbreviation transformEnv := TransformVar → euclideanGeometry3Transform
+abbreviation transformEval := TransformExpr → transformEnv → euclideanGeometry3Transform
+
+
 structure ScalarVar extends var
 inductive ScalarExpr
 | lit (f : euclideanGeometry3Scalar)
@@ -57,12 +65,15 @@ def pointVarEq : CoordinatePointVar → CoordinatePointVar → bool
 | v1 v2 := v1.num=v2.num
 def frameVarEq : frameVar → frameVar → bool
 | v1 v2 := v1.num=v2.num
+def transformVarEq : TransformVar → TransformVar → bool
+| v1 v2 := v1.num=v2.num
 def scalarVarEq : ScalarVar → ScalarVar → bool
 | v1 v2 := v1.num=v2.num
 
 structure env : Type :=
 (sp : spaceEnv)
 (fr : frameEnv )
+(tr : transformEnv)
 (vec : CoordinateVectorEnv)
 (pt : pointEnv)
 (s : scalarEnv)
@@ -73,6 +84,9 @@ noncomputable def initSp := λ v : spaceVar, euclideanGeometry3.build 9999
 noncomputable def initFr := 
     λ v : frameVar, 
         euclideanGeometry3.stdFrame (initSp ⟨⟨9999⟩⟩)
+noncomputable def initTransform :=
+    λ v : TransformVar,
+        euclideanGeometry3Transform.mk (initSp ⟨⟨9999⟩⟩) (initFr ⟨⟨9999⟩⟩) (initFr ⟨⟨9999⟩⟩)
 noncomputable def initVec := 
     λ v : CoordinateVectorVar, 
         euclideanGeometry3CoordinateVector.build (initSp ⟨⟨9999⟩⟩) (initFr ⟨⟨9999⟩⟩) ⟨[1,1,1], by refl⟩
@@ -84,6 +98,6 @@ noncomputable def initScalar :=
         euclideanGeometry3Scalar.build (initSp ⟨⟨9999⟩⟩) ⟨[1],rfl⟩
 noncomputable def 
     initEnv : env := 
-        ⟨initSp, initFr, initVec, initPt, initScalar⟩
+        ⟨initSp, initFr, initTransform, initVec, initPt, initScalar⟩
 
 end lang.euclideanGeometry3
