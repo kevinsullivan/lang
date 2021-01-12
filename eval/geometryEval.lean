@@ -24,6 +24,12 @@ def euclideanGeometry3ScalarEval : lang.euclideanGeometry3.ScalarExpr → enviro
 | (lang.euclideanGeometry3.ScalarExpr.lit V) i := V
 | (lang.euclideanGeometry3.ScalarExpr.var v) i := i.g.s v
 
+
+attribute [reducible]
+def euclideanGeometry3AngleEval : lang.euclideanGeometry3.AngleExpr → environment.env → euclideanGeometry3Angle
+| (lang.euclideanGeometry3.AngleExpr.lit V) i := V
+| (lang.euclideanGeometry3.AngleExpr.var v) i := i.g.a v
+
 attribute [reducible]
 def euclideanGeometry3CoordinateVectorEval : lang.euclideanGeometry3.CoordinateVectorExpr → environment.env → euclideanGeometry3CoordinateVector
 | (lang.euclideanGeometry3.CoordinateVectorExpr.lit V) i := V

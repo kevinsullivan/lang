@@ -53,6 +53,9 @@ inductive cmd : Type
 | euclideanGeometry3ScalarAssmt
     (v : lang.euclideanGeometry3.ScalarVar)
     (e : lang.euclideanGeometry3.ScalarExpr)
+| euclideanGeometry3AngleAssmt
+    (v : lang.euclideanGeometry3.AngleVar)
+    (e : lang.euclideanGeometry3.AngleExpr)
 | euclideanGeometry3CoordinatePointAssmt 
     (v : lang.euclideanGeometry3.CoordinatePointVar) 
     (e : lang.euclideanGeometry3.CoordinatePointExpr)
@@ -85,6 +88,7 @@ def cmdEval : cmd → environment.env → environment.env
 | (euclideanGeometry3FrameAssmt v e) i := assignGeometry3Frame i v e
 | (euclideanGeometry3TransformAssmt v e) i := assignGeometry3Transform i v e
 | (euclideanGeometry3ScalarAssmt v e) i := assignGeometry3Scalar i v e
+| (euclideanGeometry3AngleAssmt v e) i := assignGeometry3Angle i v e
 | (euclideanGeometry3CoordinatePointAssmt v e) i := assignGeometry3Point i v e
 | (euclideanGeometry3CoordinateVectorAssmt v e) i := assignGeometry3Vector i v e
 | (measurementSystemAssmt v e) i := assignMeasurementSystem i v e

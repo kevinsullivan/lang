@@ -39,6 +39,13 @@ inductive ScalarExpr
 abbreviation scalarEnv := ScalarVar → euclideanGeometry3Scalar
 abbreviation scalarEval := ScalarExpr → scalarEnv → euclideanGeometry3Scalar
 
+structure AngleVar extends var
+inductive AngleExpr
+| lit (f : euclideanGeometry3Angle)
+| var (v : AngleVar) 
+abbreviation angleEnv := AngleVar → euclideanGeometry3Angle
+abbreviation angleEval := AngleExpr → angleEnv → euclideanGeometry3Angle
+
 
 --abbreviation
 
@@ -69,6 +76,8 @@ def transformVarEq : TransformVar → TransformVar → bool
 | v1 v2 := v1.num=v2.num
 def scalarVarEq : ScalarVar → ScalarVar → bool
 | v1 v2 := v1.num=v2.num
+def angleVarEq : AngleVar → AngleVar → bool
+| v1 v2 := v1.num=v2.num
 
 structure env : Type :=
 (sp : spaceEnv)
@@ -77,7 +86,7 @@ structure env : Type :=
 (vec : CoordinateVectorEnv)
 (pt : pointEnv)
 (s : scalarEnv)
-
+(a : angleEnv)
 
 
 noncomputable def initSp := λ v : spaceVar, euclideanGeometry3.build 9999
@@ -96,8 +105,11 @@ noncomputable def initPt :=
 noncomputable def initScalar := 
     λ v : ScalarVar, 
         euclideanGeometry3Scalar.build (initSp ⟨⟨9999⟩⟩) ⟨[1],rfl⟩
+noncomputable def initAngle := 
+    λ v : AngleVar, 
+        euclideanGeometry3Angle.build (initSp ⟨⟨9999⟩⟩) ⟨[1],rfl⟩
 noncomputable def 
     initEnv : env := 
-        ⟨initSp, initFr, initTransform, initVec, initPt, initScalar⟩
+        ⟨initSp, initFr, initTransform, initVec, initPt, initScalar, initAngle⟩
 
 end lang.euclideanGeometry3
