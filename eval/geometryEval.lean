@@ -31,6 +31,16 @@ def euclideanGeometry3AngleEval : lang.euclideanGeometry3.AngleExpr → environm
 | (lang.euclideanGeometry3.AngleExpr.var v) i := i.g.a v
 
 attribute [reducible]
+def euclideanGeometry3OrientationEval : lang.euclideanGeometry3.OrientationExpr → environment.env → euclideanGeometry3Orientation
+| (lang.euclideanGeometry3.OrientationExpr.lit V) i := V
+| (lang.euclideanGeometry3.OrientationExpr.var v) i := i.g.or v
+
+attribute [reducible]
+def euclideanGeometry3RotationEval : lang.euclideanGeometry3.RotationExpr → environment.env → euclideanGeometry3Rotation
+| (lang.euclideanGeometry3.RotationExpr.lit V) i := V
+| (lang.euclideanGeometry3.RotationExpr.var v) i := i.g.r v
+
+attribute [reducible]
 def euclideanGeometry3CoordinateVectorEval : lang.euclideanGeometry3.CoordinateVectorExpr → environment.env → euclideanGeometry3CoordinateVector
 | (lang.euclideanGeometry3.CoordinateVectorExpr.lit V) i := V
 | (lang.euclideanGeometry3.CoordinateVectorExpr.var v) i := i.g.vec v

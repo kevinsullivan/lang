@@ -11,6 +11,7 @@ import ..expressions.classical_time
 import ..override.geomOverride
 import ..override.timeOverride
 import ..override.measurementSystemOverride
+import ..override.axisOrientationOverride
 --import ..override.velocityOverride
 --import ..override.accelerationOverride
 import ..expressions.boolean
@@ -56,6 +57,12 @@ inductive cmd : Type
 | euclideanGeometry3AngleAssmt
     (v : lang.euclideanGeometry3.AngleVar)
     (e : lang.euclideanGeometry3.AngleExpr)
+| euclideanGeometry3OrientationAssmt
+    (v : lang.euclideanGeometry3.OrientationVar)
+    (e : lang.euclideanGeometry3.OrientationExpr)
+| euclideanGeometry3RotationAssmt
+    (v : lang.euclideanGeometry3.RotationVar)
+    (e : lang.euclideanGeometry3.RotationExpr)
 | euclideanGeometry3CoordinatePointAssmt 
     (v : lang.euclideanGeometry3.CoordinatePointVar) 
     (e : lang.euclideanGeometry3.CoordinatePointExpr)
@@ -65,6 +72,10 @@ inductive cmd : Type
 | measurementSystemAssmt 
     (v : lang.measurementSystem.measureVar) 
     (e : lang.measurementSystem.measureExpr)
+| axisOrientationAssmt 
+    (v : lang.axisOrientation.orientationVar) 
+    (e : lang.axisOrientation.orientationExpr)
+
 
 
 
@@ -89,9 +100,12 @@ def cmdEval : cmd → environment.env → environment.env
 | (euclideanGeometry3TransformAssmt v e) i := assignGeometry3Transform i v e
 | (euclideanGeometry3ScalarAssmt v e) i := assignGeometry3Scalar i v e
 | (euclideanGeometry3AngleAssmt v e) i := assignGeometry3Angle i v e
+| (euclideanGeometry3OrientationAssmt v e) i := assignGeometry3Orientation i v e
+| (euclideanGeometry3RotationAssmt v e) i := assignGeometry3Rotation i v e
 | (euclideanGeometry3CoordinatePointAssmt v e) i := assignGeometry3Point i v e
 | (euclideanGeometry3CoordinateVectorAssmt v e) i := assignGeometry3Vector i v e
 | (measurementSystemAssmt v e) i := assignMeasurementSystem i v e
+| (axisOrientationAssmt v e) i := assignAxisOrientation i v e
 /-| (classicalVelocityAssmt (v : lang.classicalVelocity.var) (e : lang.classicalVelocity.expr)) i := 
     assignVelocity i v e
 | (classicalAccelerationAssmt (v : lang.classicalAcceleration.var) (e : lang.classicalAcceleration.expr)) i :=

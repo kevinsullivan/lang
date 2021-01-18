@@ -24,4 +24,7 @@ def measureVarEq : measureVar → measureVar → bool
 
 
 noncomputable def init := λ v : measureVar, si_measurement_system
+
+noncomputable def initEnv : env := ⟨init⟩
+
 end lang.measurementSystem
