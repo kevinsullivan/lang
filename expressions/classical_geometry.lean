@@ -64,6 +64,22 @@ inductive CoordinatePointExpr
 abbreviation pointEnv := CoordinatePointVar → euclideanGeometry3CoordinatePoint
 abbreviation pointEval := CoordinatePointExpr → pointEnv → euclideanGeometry3CoordinatePoint
 
+structure OrientationVar extends var
+inductive OrientationExpr
+| lit (f : euclideanGeometry3Orientation)
+| var(v : OrientationVar ) 
+abbreviation orientationEnv := OrientationVar → euclideanGeometry3Orientation
+abbreviation orientationEval := OrientationExpr → orientationEnv → euclideanGeometry3Orientation
+
+
+structure RotationVar extends var
+inductive RotationExpr
+| lit (f : euclideanGeometry3Rotation)
+| var(v : RotationVar ) 
+abbreviation rotationEnv := RotationVar → euclideanGeometry3Rotation
+abbreviation rotationEval := RotationExpr → rotationEnv → euclideanGeometry3Rotation
+
+
 def spaceVarEq : spaceVar → spaceVar → bool
 | v1 v2 := v1.num=v2.num
 def vectorVarEq : CoordinateVectorVar → CoordinateVectorVar → bool
@@ -78,6 +94,10 @@ def scalarVarEq : ScalarVar → ScalarVar → bool
 | v1 v2 := v1.num=v2.num
 def angleVarEq : AngleVar → AngleVar → bool
 | v1 v2 := v1.num=v2.num
+def orientationVarEq : OrientationVar → OrientationVar → bool
+| v1 v2 := v1.num=v2.num
+def rotationVarEq : RotationVar → RotationVar → bool
+| v1 v2 := v1.num=v2.num
 
 structure env : Type :=
 (sp : spaceEnv)
@@ -87,6 +107,8 @@ structure env : Type :=
 (pt : pointEnv)
 (s : scalarEnv)
 (a : angleEnv)
+(or : orientationEnv)
+(r : rotationEnv)
 
 
 noncomputable def initSp := λ v : spaceVar, euclideanGeometry3.build 9999
@@ -108,8 +130,14 @@ noncomputable def initScalar :=
 noncomputable def initAngle := 
     λ v : AngleVar, 
         euclideanGeometry3Angle.build (initSp ⟨⟨9999⟩⟩) ⟨[1],rfl⟩
+noncomputable def initOrientation := 
+    λ v : OrientationVar, 
+        euclideanGeometry3Orientation.build (initSp ⟨⟨9999⟩⟩)
+noncomputable def initRotation := 
+    λ v : RotationVar, 
+        euclideanGeometry3Rotation.build (initSp ⟨⟨9999⟩⟩)
 noncomputable def 
     initEnv : env := 
-        ⟨initSp, initFr, initTransform, initVec, initPt, initScalar, initAngle⟩
+        ⟨initSp, initFr, initTransform, initVec, initPt, initScalar, initAngle, initOrientation, initRotation⟩
 
 end lang.euclideanGeometry3
