@@ -170,7 +170,7 @@ notation`expr `e := cmd.euclideanGeometry3CoordinateVectorExpr e
 notation v=e := cmd.classicalHertzAssmt v e
 notation`expr `e := cmd.classicalHertzExpr e
 notation v=e := cmd.classicalHertzQuantityAssmt v e
-notation `expr `e := cmd.classicalHertzExpr e
+notation `expr `e := cmd.classicalHertzQuantityExpr e
 notation v=e := cmd.measurementSystemAssmt v e
 notation v=e := cmd.axisOrientationAssmt v e
 notation `skip` := cmd.skip
