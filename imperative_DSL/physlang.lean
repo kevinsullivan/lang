@@ -20,13 +20,13 @@ import ..override.axisOrientationOverride
 --import ..override.accelerationOverride
 import ..expressions.boolean
 
-
+universes u
 /-
 This file implements a simple imperative mathematical physics language.
 The language is in the style of Pierce's Imp but without loops for now. 
 -/
 
-inductive cmd : Type
+inductive cmd : Type u
 --| classicalGeometryAssmt (v : lang.classicalGeometry.var) (e : lang.classicalGeometry.expr) 
 | skip 
 | classicalTimeAssmt 
@@ -146,8 +146,8 @@ inductive cmd : Type
 | for 
     (b : bExpr) -- what goes here?
     (d : cmd)
+    
 | seq (c1 c2 : cmd)
-
 
 notation one;two := cmd.seq one two
 notation; := cmd.skip

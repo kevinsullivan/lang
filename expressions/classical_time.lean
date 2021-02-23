@@ -1,9 +1,7 @@
 import ...phys.src.classical_time
+import .expression
 
 namespace lang.classicalTime
-
-structure var : Type :=
-mk :: (num : ℕ) 
 
 structure spaceVar extends var
 
