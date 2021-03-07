@@ -1,54 +1,71 @@
 import ..imperative_DSL.environment
 
 
-open lang.euclideanGeometry3
+open lang.euclideanGeometry
+open measurementSystem
 
 attribute [reducible]
-def euclideanGeometry3Eval : lang.euclideanGeometry3.spaceExpr → environment.env → euclideanGeometry3
-| (lang.euclideanGeometry3.spaceExpr.lit V) i := V
-| (lang.euclideanGeometry3.spaceExpr.var v) i := i.g.sp v
+def euclideanGeometryEval {n : ℕ} 
+    : lang.euclideanGeometry.spaceExpr n → environment.env → euclideanGeometry n
+| (lang.euclideanGeometry.spaceExpr.lit V) i := V
+| (lang.euclideanGeometry.spaceExpr.var v) i := i.g.sp n v
 
 attribute [reducible]
-def euclideanGeometry3FrameEval : lang.euclideanGeometry3.frameExpr → environment.env → euclideanGeometry3Frame
-| (lang.euclideanGeometry3.frameExpr.lit V) i := V
-| (lang.euclideanGeometry3.frameExpr.var v) i := i.g.fr v
+def euclideanGeometryFrameEval (sig : Σn:ℕ, euclideanGeometry n)
+    : lang.euclideanGeometry.frameExpr sig → environment.env → euclideanGeometryFrame sig.2
+| (lang.euclideanGeometry.frameExpr.lit V) i := V
+| (lang.euclideanGeometry.frameExpr.var v) i := i.g.fr sig v
 
 attribute [reducible]
-def euclideanGeometry3TransformEval : lang.euclideanGeometry3.TransformExpr → environment.env → euclideanGeometry3Transform
-| (lang.euclideanGeometry3.TransformExpr.lit V) i := V
-| (lang.euclideanGeometry3.TransformExpr.var v) i := i.g.tr v
-
-
-attribute [reducible]
-def euclideanGeometry3ScalarEval : lang.euclideanGeometry3.ScalarExpr → environment.env → euclideanGeometry3Scalar
-| (lang.euclideanGeometry3.ScalarExpr.lit V) i := V
-| (lang.euclideanGeometry3.ScalarExpr.var v) i := i.g.s v
-
-
-attribute [reducible]
-def euclideanGeometry3AngleEval : lang.euclideanGeometry3.AngleExpr → environment.env → euclideanGeometry3Angle
-| (lang.euclideanGeometry3.AngleExpr.lit V) i := V
-| (lang.euclideanGeometry3.AngleExpr.var v) i := i.g.a v
+def euclideanGeometryTransformEval 
+    (sig : Σn,
+        (Σs:euclideanGeometry n,
+            Σfrom_:euclideanGeometryFrame s,
+                euclideanGeometryFrame s))
+: lang.euclideanGeometry.TransformExpr sig
+    → environment.env → euclideanGeometryTransform sig.2.2.1 sig.2.2.2
+| (lang.euclideanGeometry.TransformExpr.lit V) i := V
+| (lang.euclideanGeometry.TransformExpr.var v) i := i.g.tr sig v
 
 attribute [reducible]
-def euclideanGeometry3OrientationEval : lang.euclideanGeometry3.OrientationExpr → environment.env → euclideanGeometry3Orientation
-| (lang.euclideanGeometry3.OrientationExpr.lit V) i := V
-| (lang.euclideanGeometry3.OrientationExpr.var v) i := i.g.or v
-
-attribute [reducible]
-def euclideanGeometry3RotationEval : lang.euclideanGeometry3.RotationExpr → environment.env → euclideanGeometry3Rotation
-| (lang.euclideanGeometry3.RotationExpr.lit V) i := V
-| (lang.euclideanGeometry3.RotationExpr.var v) i := i.g.r v
-
-attribute [reducible]
-def euclideanGeometry3CoordinateVectorEval : lang.euclideanGeometry3.CoordinateVectorExpr → environment.env → euclideanGeometry3CoordinateVector
-| (lang.euclideanGeometry3.CoordinateVectorExpr.lit V) i := V
-| (lang.euclideanGeometry3.CoordinateVectorExpr.var v) i := i.g.vec v
+def euclideanGeometryQuantityEval 
+    (sig : Σn, Σs: euclideanGeometry n,MeasurementSystem)
+    -- {n : ℕ} {sp : euclideanGeometry n} {m : measurementSystem.MeasurementSystem} 
+    : lang.euclideanGeometry.QuantityExpr sig → 
+        environment.env → 
+            euclideanGeometryQuantity sig.snd.fst sig.snd.snd
+| (lang.euclideanGeometry.QuantityExpr.lit V) i := V
+| (lang.euclideanGeometry.QuantityExpr.var v) i := i.g.q sig v--n sp m v
 
 
 attribute [reducible]
-def euclideanGeometry3CoordinatePointEval : 
-    lang.euclideanGeometry3.CoordinatePointExpr → environment.env → euclideanGeometry3CoordinatePoint
-| (lang.euclideanGeometry3.CoordinatePointExpr.lit V) i := V
-| (lang.euclideanGeometry3.CoordinatePointExpr.var v) i := i.g.pt v
+def euclideanGeometryAngleEval (sig : Σn:ℕ, euclideanGeometry n)
+    : lang.euclideanGeometry.AngleExpr sig → environment.env → euclideanGeometryAngle sig.snd
+| (lang.euclideanGeometry.AngleExpr.lit V) i := V
+| (lang.euclideanGeometry.AngleExpr.var v) i := i.g.a sig v
+
+attribute [reducible]
+def euclideanGeometryOrientationEval (sig : Σn:ℕ, euclideanGeometry n)
+    : lang.euclideanGeometry.OrientationExpr sig → environment.env → euclideanGeometryOrientation sig.snd
+| (lang.euclideanGeometry.OrientationExpr.lit V) i := V
+| (lang.euclideanGeometry.OrientationExpr.var v) i := i.g.or sig v
+
+attribute [reducible]
+def euclideanGeometryRotationEval (sig : Σn:ℕ, euclideanGeometry n)
+    : lang.euclideanGeometry.RotationExpr sig → environment.env → euclideanGeometryRotation sig.snd 
+| (lang.euclideanGeometry.RotationExpr.lit V) i := V
+| (lang.euclideanGeometry.RotationExpr.var v) i := i.g.r sig v
+
+attribute [reducible]
+def euclideanGeometryCoordinateVectorEval (sig : Σn:ℕ, Σs:euclideanGeometry n,euclideanGeometryFrame s)
+    : lang.euclideanGeometry.CoordinateVectorExpr sig → environment.env → euclideanGeometryCoordinateVector sig.snd.snd
+| (lang.euclideanGeometry.CoordinateVectorExpr.lit V) i := V
+| (lang.euclideanGeometry.CoordinateVectorExpr.var v) i := i.g.vec sig v
+
+
+attribute [reducible]
+def euclideanGeometryCoordinatePointEval (sig : Σn:ℕ, Σs:euclideanGeometry n,euclideanGeometryFrame s)
+    : lang.euclideanGeometry.CoordinatePointExpr sig → environment.env → euclideanGeometryCoordinatePoint sig.snd.snd
+| (lang.euclideanGeometry.CoordinatePointExpr.lit V) i := V
+| (lang.euclideanGeometry.CoordinatePointExpr.var v) i := i.g.pt sig v
 

@@ -20,14 +20,17 @@ import ..override.axisOrientationOverride
 --import ..override.accelerationOverride
 import ..expressions.boolean
 
+import linear_algebra.affine_space.basic
+
 universes u
 /-
 This file implements a simple imperative mathematical physics language.
 The language is in the style of Pierce's Imp but without loops for now. 
 -/
+open measurementSystem
 
-inductive cmd : Type u
---| classicalGeometryAssmt (v : lang.classicalGeometry.var) (e : lang.classicalGeometry.expr) 
+
+inductive cmd : Type
 | skip 
 | classicalTimeAssmt 
     (v : lang.classicalTime.spaceVar) 
@@ -35,76 +38,109 @@ inductive cmd : Type u
 | classicalTimeExpr
     (e : lang.classicalTime.spaceExpr) 
 | classicalTimeFrameAssmt 
-    (v : lang.classicalTime.frameVar) 
-    (e : lang.classicalTime.frameExpr)
+    ( sp : classicalTime ) 
+    (v : lang.classicalTime.frameVar sp) 
+    (e : lang.classicalTime.frameExpr sp)
 | classicalTimeFrameExpr 
-    (e : lang.classicalTime.frameExpr)
+    { sp : classicalTime } (e : lang.classicalTime.frameExpr sp)
 | classicalTimeTransformAssmt
-    (v : lang.classicalTime.transformVar)
-    (e : lang.classicalTime.transformExpr)
+    (sig: Σs : classicalTime, Σ from_ : classicalTimeFrame s, classicalTimeFrame s)
+        (v : lang.classicalTime.TransformVar sig)
+        (e : lang.classicalTime.TransformExpr sig)
 | classicalTimeTransformExpr
-    (e : lang.classicalTime.transformExpr)
-| classicalTimeScalarAssmt
-    (v : lang.classicalTime.ScalarVar)
-    (e : lang.classicalTime.ScalarExpr)
-| classicalTimeScalarExpr
-    (e : lang.classicalTime.ScalarExpr)
+    {sig: Σs : classicalTime, Σ from_ : classicalTimeFrame s, classicalTimeFrame s} 
+        (e : lang.classicalTime.TransformExpr sig)
+| classicalTimeQuantityAssmt
+    (sig: Σs : classicalTime, MeasurementSystem)
+        (v : lang.classicalTime.QuantityVar sig)
+        (e : lang.classicalTime.QuantityExpr sig)
+| classicalTimeQuantityExpr
+    {sig: Σs : classicalTime, MeasurementSystem}
+        (e : lang.classicalTime.QuantityExpr sig)
 | classicalTimeCoordinatePointAssmt 
-    (v : lang.classicalTime.CoordinatePointVar) 
-    (e : lang.classicalTime.CoordinatePointExpr)
+    (sig: Σs : classicalTime, classicalTimeFrame s)
+        (v : lang.classicalTime.CoordinatePointVar sig) 
+        (e : lang.classicalTime.CoordinatePointExpr sig)
 | classicalTimeCoordinatePointExpr
-    (e : lang.classicalTime.CoordinatePointExpr)
+    {sig: Σs : classicalTime, classicalTimeFrame s}
+        (e : lang.classicalTime.CoordinatePointExpr sig)
 | classicalTimeCoordinateVectorAssmt 
-    (v : lang.classicalTime.CoordinateVectorVar) 
-    (e : lang.classicalTime.CoordinateVectorExpr)
+    (sig: Σs : classicalTime, classicalTimeFrame s)
+        (v : lang.classicalTime.CoordinateVectorVar sig) 
+        (e : lang.classicalTime.CoordinateVectorExpr sig)
 | classicalTimeCoordinateVectorExpr
-    (e : lang.classicalTime.CoordinateVectorExpr)
-| euclideanGeometry3Assmt 
-    (v : lang.euclideanGeometry3.spaceVar) 
-    (e : lang.euclideanGeometry3.spaceExpr) 
-| euclideanGeometry3Expr 
-    (e : lang.euclideanGeometry3.spaceExpr) 
-| euclideanGeometry3FrameAssmt 
-    (v : lang.euclideanGeometry3.frameVar) 
-    (e : lang.euclideanGeometry3.frameExpr)
-| euclideanGeometry3FrameExpr 
-    (e : lang.euclideanGeometry3.frameExpr)
-| euclideanGeometry3TransformAssmt
-    (v : lang.euclideanGeometry3.TransformVar)
-    (e : lang.euclideanGeometry3.TransformExpr)
-| euclideanGeometry3TransformExpr
-    (e : lang.euclideanGeometry3.TransformExpr)
-| euclideanGeometry3ScalarAssmt
-    (v : lang.euclideanGeometry3.ScalarVar)
-    (e : lang.euclideanGeometry3.ScalarExpr)
-| euclideanGeometry3ScalarExpr
-    (e : lang.euclideanGeometry3.ScalarExpr)
-| euclideanGeometry3AngleAssmt
-    (v : lang.euclideanGeometry3.AngleVar)
-    (e : lang.euclideanGeometry3.AngleExpr)
-| euclideanGeometry3AngleExpr
-    (e : lang.euclideanGeometry3.AngleExpr)
-| euclideanGeometry3OrientationAssmt
-    (v : lang.euclideanGeometry3.OrientationVar)
-    (e : lang.euclideanGeometry3.OrientationExpr)
-| euclideanGeometry3OrientationExpr
-    (e : lang.euclideanGeometry3.OrientationExpr)
-| euclideanGeometry3RotationAssmt
-    (v : lang.euclideanGeometry3.RotationVar)
-    (e : lang.euclideanGeometry3.RotationExpr)
-| euclideanGeometry3RotationExpr
-    (e : lang.euclideanGeometry3.RotationExpr)
-| euclideanGeometry3CoordinatePointAssmt 
-    (v : lang.euclideanGeometry3.CoordinatePointVar) 
-    (e : lang.euclideanGeometry3.CoordinatePointExpr)
-| euclideanGeometry3CoordinatePointExpr
-    (e : lang.euclideanGeometry3.CoordinatePointExpr)
-| euclideanGeometry3CoordinateVectorAssmt 
-    (v : lang.euclideanGeometry3.CoordinateVectorVar) 
-    (e : lang.euclideanGeometry3.CoordinateVectorExpr)
-| euclideanGeometry3CoordinateVectorExpr 
-    (e : lang.euclideanGeometry3.CoordinateVectorExpr)
-| classicalHertzAssmt 
+    {sig: Σs : classicalTime, classicalTimeFrame s}
+        (e : lang.classicalTime.CoordinateVectorExpr sig)
+| euclideanGeometryAssmt 
+    (n : ℕ)
+        (v : lang.euclideanGeometry.spaceVar n) 
+        (e : lang.euclideanGeometry.spaceExpr n) 
+| euclideanGeometryExpr 
+    {n : ℕ}
+        (e : lang.euclideanGeometry.spaceExpr n) 
+| euclideanGeometryFrameAssmt 
+    (sig : Σn:ℕ, euclideanGeometry n)
+        (v : lang.euclideanGeometry.frameVar sig) 
+        (e : lang.euclideanGeometry.frameExpr sig)
+| euclideanGeometryFrameExpr 
+    {sig : Σn:ℕ, euclideanGeometry n}
+        (e : lang.euclideanGeometry.frameExpr sig)
+| euclideanGeometryTransformAssmt
+    (sig : Σn,
+        (Σs:euclideanGeometry n,
+            Σfrom_:euclideanGeometryFrame s,
+                euclideanGeometryFrame s))
+        (v : lang.euclideanGeometry.TransformVar sig)
+        (e : lang.euclideanGeometry.TransformExpr sig)
+| euclideanGeometryTransformExpr
+    {sig : Σn,
+        (Σs:euclideanGeometry n,
+            Σfrom_:euclideanGeometryFrame s,
+                euclideanGeometryFrame s)}
+        (e : lang.euclideanGeometry.TransformExpr sig)
+| euclideanGeometryQuantityAssmt
+    (sig : Σn, Σs: euclideanGeometry n,MeasurementSystem)
+        (v : lang.euclideanGeometry.QuantityVar sig)
+        (e : lang.euclideanGeometry.QuantityExpr sig)
+| euclideanGeometryQuantityExpr
+    {sig : Σn, Σs: euclideanGeometry n,MeasurementSystem}
+        (e : lang.euclideanGeometry.QuantityExpr sig)
+| euclideanGeometryAngleAssmt
+    (sig : Σn:ℕ, euclideanGeometry n)
+        (v : lang.euclideanGeometry.AngleVar sig)
+        (e : lang.euclideanGeometry.AngleExpr sig)
+| euclideanGeometryAngleExpr
+    {sig : Σn:ℕ, euclideanGeometry n}
+        (e : lang.euclideanGeometry.AngleExpr sig)
+| euclideanGeometryOrientationAssmt
+    (sig : Σn:ℕ, euclideanGeometry n)
+        (v : lang.euclideanGeometry.OrientationVar sig)
+        (e : lang.euclideanGeometry.OrientationExpr sig)
+| euclideanGeometryOrientationExpr
+    {sig : Σn:ℕ, euclideanGeometry n}
+        (e : lang.euclideanGeometry.OrientationExpr sig)
+| euclideanGeometryRotationAssmt
+    (sig : Σn:ℕ, euclideanGeometry n)
+        (v : lang.euclideanGeometry.RotationVar sig)
+        (e : lang.euclideanGeometry.RotationExpr sig)
+| euclideanGeometryRotationExpr
+    {sig : Σn:ℕ, euclideanGeometry n}
+        (e : lang.euclideanGeometry.RotationExpr sig)
+| euclideanGeometryCoordinatePointAssmt 
+    (sig : Σn:ℕ, Σs:euclideanGeometry n,euclideanGeometryFrame s)
+        (v : lang.euclideanGeometry.CoordinatePointVar sig) 
+        (e : lang.euclideanGeometry.CoordinatePointExpr sig)
+| euclideanGeometryCoordinatePointExpr
+    {sig : Σn:ℕ, Σs:euclideanGeometry n,euclideanGeometryFrame s}
+        (e : lang.euclideanGeometry.CoordinatePointExpr sig)
+| euclideanGeometryCoordinateVectorAssmt 
+    (sig : Σn:ℕ, Σs:euclideanGeometry n,euclideanGeometryFrame s)
+        (v : lang.euclideanGeometry.CoordinateVectorVar sig) 
+        (e : lang.euclideanGeometry.CoordinateVectorExpr sig)
+| euclideanGeometryCoordinateVectorExpr 
+    {sig : Σn:ℕ, Σs:euclideanGeometry n,euclideanGeometryFrame s}
+        (e : lang.euclideanGeometry.CoordinateVectorExpr sig)
+/-| classicalHertzAssmt 
     (v : lang.classicalHertz.spaceVar) 
     (e : lang.classicalHertz.spaceExpr) 
 | classicalHertzExpr
@@ -123,7 +159,7 @@ inductive cmd : Type u
     (v : lang.classicalLuminousIntensity.QuantityVar)
     (e : lang.classicalLuminousIntensity.QuantityExpr)
 | classicalLuminousIntensityQuantityExpr
-    (e : lang.classicalLuminousIntensity.QuantityExpr)
+    (e : lang.classicalLuminousIntensity.QuantityExpr)-/
 | measurementSystemAssmt 
     (v : lang.measurementSystem.measureVar) 
     (e : lang.measurementSystem.measureExpr)
@@ -146,7 +182,6 @@ inductive cmd : Type u
 | for 
     (b : bExpr) -- what goes here?
     (d : cmd)
-    
 | seq (c1 c2 : cmd)
 
 notation one;two := cmd.seq one two
@@ -155,36 +190,41 @@ notation `while `b,d := cmd.while b d
 notation `try `t,`catch `c := cmd.try_catch t c
 notation `for `b,d := cmd.for b d
 
+--time
 notation v=e := cmd.classicalTimeAssmt v e
 notation`expr `e := cmd.classicalTimeExpr e
 notation v=e := cmd.classicalTimeFrameAssmt v e
 notation`expr `e := cmd.classicalTimeFrameExpr e
 notation v=e := cmd.classicalTimeTransformAssmt v e
 notation`expr `e := cmd.classicalTimeTransformExpr e
-notation v=e := cmd.classicalTimeScalarAssmt v e
-notation`expr `e := cmd.classicalTimeScalarExpr e
+notation v=e := cmd.classicalTimeQuantityAssmt v e
+notation`expr `e := cmd.classicalTimeQuantityExpr e
 notation v=e := cmd.classicalTimeCoordinatePointAssmt v e
 notation`expr `e := cmd.classicalTimeCoordinatePointExpr e
 notation v=e := cmd.classicalTimeCoordinateVectorAssmt v e
 notation`expr `e := cmd.classicalTimeCoordinateVectorExpr e
-notation v=e := cmd.euclideanGeometry3Assmt v e
-notation`expr `e := cmd.euclideanGeometry3Expr e
-notation v=e := cmd.euclideanGeometry3FrameAssmt v e
-notation`expr `e := cmd.euclideanGeometry3FrameExpr e
-notation v=e := cmd.euclideanGeometry3TransformAssmt v e
-notation`expr `e := cmd.euclideanGeometry3TransformExpr e
-notation v=e := cmd.euclideanGeometry3ScalarAssmt v e
-notation`expr `e := cmd.euclideanGeometry3ScalarExpr e
-notation v=e := cmd.euclideanGeometry3AngleAssmt v e
-notation`expr `e := cmd.euclideanGeometry3AngleExpr e
-notation v=e := cmd.euclideanGeometry3OrientationAssmt v e
-notation`expr `e := cmd.euclideanGeometry3OrientationExpr e
-notation v=e := cmd.euclideanGeometry3RotationAssmt v e
-notation`expr `e := cmd.euclideanGeometry3RotationExpr e
-notation v=e := cmd.euclideanGeometry3CoordinatePointAssmt v e
+
+--geom
+notation v=e := cmd.euclideanGeometryAssmt v e
+notation`expr `e := cmd.euclideanGeometryExpr e
+notation v=e := cmd.euclideanGeometryFrameAssmt v e
+notation`expr `e := cmd.euclideanGeometryFrameExpr e
+notation v=e := cmd.euclideanGeometryTransformAssmt v e
+notation`expr `e := cmd.euclideanGeometryTransformExpr e
+notation v=e := cmd.euclideanGeometryQuantityAssmt v e
+notation`expr `e := cmd.euclideanGeometryQuantityExpr e
+notation v=e := cmd.euclideanGeometryAngleAssmt v e
+notation`expr `e := cmd.euclideanGeometryAngleExpr e
+notation v=e := cmd.euclideanGeometryOrientationAssmt v e
+notation`expr `e := cmd.euclideanGeometryOrientationExpr e
+notation v=e := cmd.euclideanGeometryRotationAssmt v e
+notation`expr `e := cmd.euclideanGeometryRotationExpr e
+notation v=e := cmd.euclideanGeometryCoordinatePointAssmt v e
 notation`expr `e := cmd.euclidenaGeometry3CoordinatePointExpr e
-notation v=e := cmd.euclideanGeometry3CoordinateVectorAssmt v e
-notation`expr `e := cmd.euclideanGeometry3CoordinateVectorExpr e
+notation v=e := cmd.euclideanGeometryCoordinateVectorAssmt v e
+notation`expr `e := cmd.euclideanGeometryCoordinateVectorExpr e
+
+/-
 notation v=e := cmd.classicalHertzAssmt v e
 notation`expr `e := cmd.classicalHertzExpr e
 notation v=e := cmd.classicalHertzQuantityAssmt v e
@@ -193,6 +233,8 @@ notation v=e := cmd.classicalLuminousIntensityAssmt v e
 notation`expr `e := cmd.classicalLuminousIntensityExpr e
 notation v=e := cmd.classicalLuminousIntensityQuantityAssmt v e
 notation `expr `e := cmd.classicalLuminousIntensityQuantityExpr e
+-/
+
 notation v=e := cmd.measurementSystemAssmt v e
 notation v=e := cmd.axisOrientationAssmt v e
 notation `skip` := cmd.skip
@@ -200,48 +242,48 @@ notation `skip` := cmd.skip
 
 open cmd 
 
-def cmdEval : cmd → environment.env → environment.env
+noncomputable def cmdEval : cmd → environment.env → environment.env
 /-| (classicalGeometryAssmt (v : lang.classicalGeometry.var) (e : lang.classicalGeometry.expr)) i := 
     assignGeometry i v e-/
 | skip i := i
 | (classicalTimeAssmt v e) i := assignTimeSpace i v e
 | (classicalTimeExpr e) i := i
-| (classicalTimeFrameAssmt v e) i := assignTimeFrame i v e
+| (classicalTimeFrameAssmt sp v e) i := assignTimeFrame sp i v e
 | (classicalTimeFrameExpr e) i := i
-| (classicalTimeTransformAssmt v e) i := assignTimeTransform i v e
+| (classicalTimeTransformAssmt sig v e) i := assignTimeTransform sig i v e
 | (classicalTimeTransformExpr e) i := i
-| (classicalTimeScalarAssmt v e) i := assignTimeScalar i v e
-| (classicalTimeScalarExpr e) i := i
-| (classicalTimeCoordinatePointAssmt v e) i := assignTimePoint i v e
+| (classicalTimeQuantityAssmt sig v e) i := assignTimeQuantity sig i v e
+| (classicalTimeQuantityExpr e) i := i
+| (classicalTimeCoordinatePointAssmt sig v e) i := assignTimePoint sig i v e
 | (classicalTimeCoordinatePointExpr e) i := i
-| (classicalTimeCoordinateVectorAssmt v e) i := assignTimeVector i v e
+| (classicalTimeCoordinateVectorAssmt sig v e) i := assignTimeVector sig i v e
 | (classicalTimeCoordinateVectorExpr e) i := i
-| (euclideanGeometry3Assmt v e) i := assignGeometry3Space i v e
-| (euclideanGeometry3Expr e) i := i
-| (euclideanGeometry3FrameAssmt v e) i := assignGeometry3Frame i v e
-| (euclideanGeometry3FrameExpr e) i := i
-| (euclideanGeometry3TransformAssmt v e) i := assignGeometry3Transform i v e
-| (euclideanGeometry3TransformExpr e) i := i
-| (euclideanGeometry3ScalarAssmt v e) i := assignGeometry3Scalar i v e
-| (euclideanGeometry3ScalarExpr e) i := i
-| (euclideanGeometry3AngleAssmt v e) i := assignGeometry3Angle i v e
-| (euclideanGeometry3AngleExpr e) i := i
-| (euclideanGeometry3OrientationAssmt v e) i := assignGeometry3Orientation i v e
-| (euclideanGeometry3OrientationExpr e) i := i
-| (euclideanGeometry3RotationAssmt v e) i := assignGeometry3Rotation i v e
-| (euclideanGeometry3RotationExpr e) i := i
-| (euclideanGeometry3CoordinatePointAssmt v e) i := assignGeometry3Point i v e
-| (euclideanGeometry3CoordinatePointExpr e) i := i
-| (euclideanGeometry3CoordinateVectorAssmt v e) i := assignGeometry3Vector i v e
-| (euclideanGeometry3CoordinateVectorExpr e) i := i
-| (classicalHertzAssmt v e) i := assignHertzSpace i v e
+| (euclideanGeometryAssmt sig v e) i := assignGeometry3Space sig i v e
+| (euclideanGeometryExpr e) i := i
+| (euclideanGeometryFrameAssmt sig v e) i := assignGeometry3Frame sig i v e
+| (euclideanGeometryFrameExpr e) i := i
+| (euclideanGeometryTransformAssmt sig v e) i := assignGeometry3Transform sig i v e
+| (euclideanGeometryTransformExpr e) i := i
+| (euclideanGeometryQuantityAssmt sig v e) i := assignGeometry3Quantity sig i v e
+| (euclideanGeometryQuantityExpr e) i := i
+| (euclideanGeometryAngleAssmt sig v e) i := assignGeometry3Angle sig i v e
+| (euclideanGeometryAngleExpr e) i := i
+| (euclideanGeometryOrientationAssmt sig v e) i := assignGeometry3Orientation sig i v e
+| (euclideanGeometryOrientationExpr e) i := i
+| (euclideanGeometryRotationAssmt sig v e) i := assignGeometry3Rotation sig i v e
+| (euclideanGeometryRotationExpr e) i := i
+| (euclideanGeometryCoordinatePointAssmt sig v e) i := assignGeometry3Point sig i v e
+| (euclideanGeometryCoordinatePointExpr e) i := i
+| (euclideanGeometryCoordinateVectorAssmt sig v e) i := assignGeometry3Vector sig i v e
+| (euclideanGeometryCoordinateVectorExpr e) i := i
+/-| (classicalHertzAssmt v e) i := assignHertzSpace i v e
 | (classicalHertzExpr e) i := i 
 | (classicalHertzQuantityAssmt v e) i := assignHertzQuantity i v e
 | (classicalHertzQuantityExpr e) i := i
 | (classicalLuminousIntensityAssmt v e) i := assignLuminousIntensitySpace i v e
 | (classicalLuminousIntensityExpr e) i := i 
 | (classicalLuminousIntensityQuantityAssmt v e) i := assignLuminousIntensityQuantity i v e
-| (classicalLuminousIntensityQuantityExpr e) i := i
+| (classicalLuminousIntensityQuantityExpr e) i := i-/
 | (measurementSystemAssmt v e) i := assignMeasurementSystem i v e
 | (measurementSystemExpr e) i := i
 | (axisOrientationAssmt v e) i := assignAxisOrientation i v e

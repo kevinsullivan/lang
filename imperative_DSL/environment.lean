@@ -14,7 +14,7 @@ namespace environment
 structure env : Type :=
 mk ::   --(g: lang.classicalGeometry.spaceEnv)
         (t: lang.classicalTime.env)
-        (g: lang.euclideanGeometry3.env)
+        (g: lang.euclideanGeometry.env)
         (h: lang.classicalHertz.env)
         (li: lang.classicalLuminousIntensity.env)
         (ms: lang.measurementSystem.env)
@@ -26,7 +26,7 @@ def init_env :env := --env.mk
 --                    lang.classicalGeometry.init
                    ⟨
                    lang.classicalTime.initEnv, 
-                   lang.euclideanGeometry3.initEnv, 
+                   lang.euclideanGeometry.initEnv, 
                    lang.classicalHertz.initEnv,
                    lang.classicalLuminousIntensity.initEnv,
                    lang.measurementSystem.initEnv,

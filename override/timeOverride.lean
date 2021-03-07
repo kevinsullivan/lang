@@ -3,64 +3,129 @@ import ..eval.timeEval
 
 open lang.classicalTime
 
-def assignTimeSpace : environment.env → lang.classicalTime.spaceVar → lang.classicalTime.spaceExpr → environment.env
-| i v e :=
-  {
+open measurementSystem
+/-{
     t:={sp := (λ r,     
                 if (spaceVarEq v r) 
                 then (classicalTimeEval e i) 
                 else (i.t.sp r)), ..i.t},
     ..i
-  }
+  }-/
+open classical
+local attribute [instance] prop_decidable --makes everything noncomputable which is problematic
 
-def assignTimeFrame : environment.env → lang.classicalTime.frameVar → lang.classicalTime.frameExpr → environment.env
-| i v e := 
+
+
+noncomputable def assignTimeSpace
+  : environment.env → spaceVar → spaceExpr → environment.env
+| i v e :=
   {
-    t:={fr := (λ r,     
-                if (frameVarEq v r) 
-                then (classicalTimeFrameEval e i) 
-                else (i.t.fr r)), ..i.t},
+    t:={sp :=
+                λ r,
+                let d := (i.t.sp r) in
+                if r.num = v.num then 
+                    (classicalTimeEval e i)
+                else d
+                ..i.t},
     ..i
   }
 
-def assignTimeTransform : environment.env → lang.classicalTime.transformVar → lang.classicalTime.transformExpr → environment.env
+
+noncomputable def assignTimeFrame (sp : classicalTime)
+  : environment.env → lang.classicalTime.frameVar sp → lang.classicalTime.frameExpr sp → environment.env
 | i v e := 
   {
-    t:={tr := (λ r,     
-                if (transformVarEq v r) 
-                then (classicalTimeTransformEval e i) 
-                else (i.t.tr r)), ..i.t},
+    t:={fr := 
+          λ sp1,
+          λ v1,
+            let d : classicalTimeFrame sp1 := (i.t.fr sp1 v1) in
+            if v1.num = v.num then 
+              if eqn:sp=sp1 then 
+                let e1 : frameExpr sp1 := eq.rec e eqn in
+                (classicalTimeFrameEval sp1 e1 i)
+              else d
+            else d,
+            ..i.t},
     ..i
   }
 
-def assignTimeVector : environment.env → lang.classicalTime.CoordinateVectorVar → lang.classicalTime.CoordinateVectorExpr → environment.env 
+noncomputable def assignTimeTransform
+    (sig: Σs : classicalTime, Σ from_ : classicalTimeFrame s, classicalTimeFrame s)
+     : environment.env → lang.classicalTime.TransformVar sig → 
+          lang.classicalTime.TransformExpr sig → environment.env
 | i v e := 
   {
-    t:={vec := (λ r,     
-                if (CoordinateVectorVarEq v r) 
-                then (classicalTimeCoordinateVectorEval e i) 
-                else (i.t.vec r)), ..i.t},
+    t:={tr := 
+          λ sig1,
+          λ v1,
+            let d : classicalTimeTransform sig1.2.1 sig1.2.2 := (i.t.tr sig1 v1) in
+            if v1.num = v.num then 
+              if eqn:sig=sig1 then 
+                let e1 : TransformExpr sig1 := eq.rec e eqn in
+                (classicalTimeFrameEval sig1 e1 i)
+              else d
+            else d,
+            ..i.t},
     ..i
   }
 
-def assignTimePoint : environment.env → lang.classicalTime.CoordinatePointVar → lang.classicalTime.CoordinatePointExpr → environment.env 
+noncomputable def assignTimeVector
+    (sig: Σs : classicalTime, classicalTimeFrame s)
+    : environment.env → lang.classicalTime.CoordinateVectorVar sig → 
+          lang.classicalTime.CoordinateVectorExpr sig → environment.env 
 | i v e := 
   {
-    t:={pt := (λ r,     
-                if (pointVarEq v r) 
-                then (classicalTimeCoordinatePointEval e i) 
-                else (i.t.pt r)), ..i.t},
+    t:={vec := 
+          λ sig1,
+          λ v1,
+            let d : classicalTimeCoordinateVector sig1.2 := (i.t.vec sig1 v1) in
+            if v1.num = v.num then 
+              if eqn:sig=sig1 then 
+                let e1 : CoordinateVectorExpr sig1 := eq.rec e eqn in
+                (classicalTimeCoordinateVectorEval sig1 e1 i)
+              else d
+            else d,
+            ..i.t},
     ..i
   }
 
-def assignTimeScalar : environment.env → 
-  lang.classicalTime.ScalarVar → 
-  lang.classicalTime.ScalarExpr → environment.env 
+
+noncomputable def assignTimePoint
+    (sig: Σs : classicalTime, classicalTimeFrame s)
+     : environment.env → lang.classicalTime.CoordinatePointVar sig → 
+        lang.classicalTime.CoordinatePointExpr sig → environment.env 
 | i v e := 
   {
-    t:={s := (λ r,     
-                if (scalarVarEq v r) 
-                then (classicalTimeScalarEval e i) 
-                else (i.t.s r)), ..i.t},
+    t:={pt := 
+          λ sig1,
+          λ v1,
+            let d : classicalTimeCoordinatePoint sig1.2 := (i.t.pt sig1 v1) in
+            if v1.num = v.num then 
+              if eqn:sig=sig1 then 
+                let e1 : CoordinatePointExpr sig1 := eq.rec e eqn in
+                (classicalTimeCoordinatePointEval sig1 e1 i)
+              else d
+            else d,
+            ..i.t},
+    ..i
+  }
+
+noncomputable def assignTimeQuantity
+    (sig: Σs : classicalTime, MeasurementSystem)
+     : environment.env → lang.classicalTime.QuantityVar sig → 
+        lang.classicalTime.QuantityExpr sig → environment.env 
+| i v e := 
+  {
+    t:={q := 
+          λ sig1,
+          λ v1,
+            let d : classicalTimeQuantity sig1.1 sig1.2 := (i.t.q sig1 v1) in
+            if v1.num = v.num then 
+              if eqn:sig=sig1 then 
+                let e1 : QuantityExpr sig1 := eq.rec e eqn in
+                (classicalTimeQuantityEval sig1 e1 i)
+              else d
+            else d,
+            ..i.t},
     ..i
   }
