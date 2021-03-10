@@ -10,7 +10,7 @@ local attribute [instance] prop_decidable --makes everything noncomputable which
 open measurementSystem
 
 
-noncomputable def assignGeometry3Space (n : ℕ)
+noncomputable def assignGeometrySpace (n : ℕ)
   : environment.env → lang.euclideanGeometry.spaceVar n → spaceExpr n → environment.env
 | i v e :=
   {
@@ -27,7 +27,7 @@ noncomputable def assignGeometry3Space (n : ℕ)
     ..i
   }
 
-noncomputable def assignGeometry3Frame  (sig : Σn:ℕ, euclideanGeometry n)
+noncomputable def assignGeometryFrame  (sig : Σn:ℕ, euclideanGeometry n)
   : environment.env → lang.euclideanGeometry.frameVar sig → lang.euclideanGeometry.frameExpr sig → environment.env
 | i v e := 
   {
@@ -45,7 +45,7 @@ noncomputable def assignGeometry3Frame  (sig : Σn:ℕ, euclideanGeometry n)
     ..i
   }
 
-noncomputable def assignGeometry3Transform 
+noncomputable def assignGeometryTransform 
   (sig : Σn,
         (Σs:euclideanGeometry n,
             Σfrom_:euclideanGeometryFrame s,
@@ -68,7 +68,7 @@ noncomputable def assignGeometry3Transform
     ..i
   }
 
-noncomputable def assignGeometry3Vector
+noncomputable def assignGeometryVector
     (sig : Σn:ℕ, Σs:euclideanGeometry n,euclideanGeometryFrame s) :
       environment.env → lang.euclideanGeometry.CoordinateVectorVar sig → 
         lang.euclideanGeometry.CoordinateVectorExpr sig → environment.env 
@@ -88,7 +88,7 @@ noncomputable def assignGeometry3Vector
     ..i
   }
 
-noncomputable def assignGeometry3Point 
+noncomputable def assignGeometryPoint 
     (sig : Σn:ℕ, Σs:euclideanGeometry n,euclideanGeometryFrame s) :
       environment.env → lang.euclideanGeometry.CoordinatePointVar sig → 
         lang.euclideanGeometry.CoordinatePointExpr sig → environment.env 
@@ -108,7 +108,7 @@ noncomputable def assignGeometry3Point
     ..i
   }
 
-noncomputable def assignGeometry3Quantity 
+noncomputable def assignGeometryQuantity 
     (sig : Σn, Σs: euclideanGeometry n,MeasurementSystem) : 
       environment.env → 
   lang.euclideanGeometry.QuantityVar sig → 
@@ -130,7 +130,7 @@ noncomputable def assignGeometry3Quantity
   }
                 
 
-noncomputable def assignGeometry3Angle 
+noncomputable def assignGeometryAngle 
   (sig : Σn:ℕ, euclideanGeometry n) : environment.env → 
   lang.euclideanGeometry.AngleVar sig → 
   lang.euclideanGeometry.AngleExpr sig → environment.env 
@@ -151,7 +151,7 @@ noncomputable def assignGeometry3Angle
   }
                 
 
-noncomputable def assignGeometry3Orientation
+noncomputable def assignGeometryOrientation
   (sig : Σn:ℕ, euclideanGeometry n) : environment.env → 
   lang.euclideanGeometry.OrientationVar sig → 
   lang.euclideanGeometry.OrientationExpr sig → environment.env 
@@ -172,7 +172,7 @@ noncomputable def assignGeometry3Orientation
   }
                 
 
-noncomputable def assignGeometry3Rotation
+noncomputable def assignGeometryRotation
   (sig : Σn:ℕ, euclideanGeometry n) : environment.env → 
   lang.euclideanGeometry.RotationVar sig → 
   lang.euclideanGeometry.RotationExpr sig → environment.env 

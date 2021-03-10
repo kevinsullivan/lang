@@ -220,7 +220,7 @@ notation`expr `e := cmd.euclideanGeometryOrientationExpr e
 notation v=e := cmd.euclideanGeometryRotationAssmt v e
 notation`expr `e := cmd.euclideanGeometryRotationExpr e
 notation v=e := cmd.euclideanGeometryCoordinatePointAssmt v e
-notation`expr `e := cmd.euclidenaGeometry3CoordinatePointExpr e
+notation`expr `e := cmd.euclidenaGeometryCoordinatePointExpr e
 notation v=e := cmd.euclideanGeometryCoordinateVectorAssmt v e
 notation`expr `e := cmd.euclideanGeometryCoordinateVectorExpr e
 
@@ -258,23 +258,23 @@ noncomputable def cmdEval : cmd → environment.env → environment.env
 | (classicalTimeCoordinatePointExpr e) i := i
 | (classicalTimeCoordinateVectorAssmt sig v e) i := assignTimeVector sig i v e
 | (classicalTimeCoordinateVectorExpr e) i := i
-| (euclideanGeometryAssmt sig v e) i := assignGeometry3Space sig i v e
+| (euclideanGeometryAssmt sig v e) i := assignGeometrySpace sig i v e
 | (euclideanGeometryExpr e) i := i
-| (euclideanGeometryFrameAssmt sig v e) i := assignGeometry3Frame sig i v e
+| (euclideanGeometryFrameAssmt sig v e) i := assignGeometryFrame sig i v e
 | (euclideanGeometryFrameExpr e) i := i
-| (euclideanGeometryTransformAssmt sig v e) i := assignGeometry3Transform sig i v e
+| (euclideanGeometryTransformAssmt sig v e) i := assignGeometryTransform sig i v e
 | (euclideanGeometryTransformExpr e) i := i
-| (euclideanGeometryQuantityAssmt sig v e) i := assignGeometry3Quantity sig i v e
+| (euclideanGeometryQuantityAssmt sig v e) i := assignGeometryQuantity sig i v e
 | (euclideanGeometryQuantityExpr e) i := i
-| (euclideanGeometryAngleAssmt sig v e) i := assignGeometry3Angle sig i v e
+| (euclideanGeometryAngleAssmt sig v e) i := assignGeometryAngle sig i v e
 | (euclideanGeometryAngleExpr e) i := i
-| (euclideanGeometryOrientationAssmt sig v e) i := assignGeometry3Orientation sig i v e
+| (euclideanGeometryOrientationAssmt sig v e) i := assignGeometryOrientation sig i v e
 | (euclideanGeometryOrientationExpr e) i := i
-| (euclideanGeometryRotationAssmt sig v e) i := assignGeometry3Rotation sig i v e
+| (euclideanGeometryRotationAssmt sig v e) i := assignGeometryRotation sig i v e
 | (euclideanGeometryRotationExpr e) i := i
-| (euclideanGeometryCoordinatePointAssmt sig v e) i := assignGeometry3Point sig i v e
+| (euclideanGeometryCoordinatePointAssmt sig v e) i := assignGeometryPoint sig i v e
 | (euclideanGeometryCoordinatePointExpr e) i := i
-| (euclideanGeometryCoordinateVectorAssmt sig v e) i := assignGeometry3Vector sig i v e
+| (euclideanGeometryCoordinateVectorAssmt sig v e) i := assignGeometryVector sig i v e
 | (euclideanGeometryCoordinateVectorExpr e) i := i
 /-| (classicalHertzAssmt v e) i := assignHertzSpace i v e
 | (classicalHertzExpr e) i := i 
