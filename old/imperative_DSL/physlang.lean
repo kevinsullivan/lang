@@ -28,6 +28,7 @@ This file implements a simple imperative mathematical physics language.
 The language is in the style of Pierce's Imp but without loops for now. 
 -/
 open measurementSystem
+open 
 
 
 inductive cmd : Type

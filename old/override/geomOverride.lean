@@ -3,14 +3,11 @@ import ..eval.geometryEval
 
 open lang.euclideanGeometry
 
-open classical
-local attribute [instance] prop_decidable --makes everything noncomputable which is problematic
-
 
 open measurementSystem
 
 
-noncomputable def assignGeometrySpace (n : ℕ)
+def assignGeometrySpace (n : ℕ)
   : environment.env → lang.euclideanGeometry.spaceVar n → spaceExpr n → environment.env
 | i v e :=
   {
@@ -27,7 +24,106 @@ noncomputable def assignGeometrySpace (n : ℕ)
     ..i
   }
 
-noncomputable def assignGeometryFrame  (sig : Σn:ℕ, euclideanGeometry n)
+--constants (sig : Σn:ℕ, euclideanGeometry n) (sig1 : Σn1:ℕ, --euclideanGeometry n1)
+
+def geo1 : euclideanGeometry 1 := euclideanGeometry.build 1 1
+def geo2 : euclideanGeometry 1 := euclideanGeometry.build 1 1
+
+instance eucl_eq 
+  {n: ℕ}
+  {sp : euclideanGeometry n}
+  {sp1 : euclideanGeometry n}
+  : decidable (sp=sp1) :=
+  if n_eq : sp.id=sp1.id then 
+    begin
+      let t : sp = sp1 := begin
+        induction sp,
+        induction sp1,
+        let : sp=sp1 := by cc,
+        cc
+      end,
+      exact decidable.is_true t
+    end  
+  else
+    begin
+      let f : ¬(sp=sp1) := begin
+        
+        induction sp,
+        induction sp1,
+        let nsp : ¬(sp=sp1) := by cc,
+        --by cc,
+        simp *,
+      end,
+      exact decidable.is_false f
+    end  
+
+
+#eval (geo1=geo2:bool)
+#check geo1==geo2
+
+#check eq_rec_heq
+
+#check heq.trans
+
+instance  sig_fr_eq
+  {sig : Σn:ℕ, euclideanGeometry n}
+  {sig1 : Σn1:ℕ, euclideanGeometry n1}
+  : decidable (sig=sig1)  := 
+  if n_eq:sig.fst=sig1.fst then
+    if id_eq:sig.snd.id=sig1.snd.id then 
+      let recd : euclideanGeometry sig1.fst := n_eq.rec_on sig.snd in
+      if sp_eq:sig1.snd=(n_eq.rec_on sig.snd) then
+      begin
+      let seq : sig = sig1 := 
+        begin
+          let tt : n_eq.rec_on sig.2 == sig.2 :=  (eq_rec_heq n_eq sig.2) ,
+          let t3 : sig1.2 = (n_eq.rec_on sig.2) := by simp *,
+          induction sig,
+          induction sig1,
+          simp *,
+          cc,
+        end,
+      exact decidable.is_true seq
+    end
+      else 
+        begin--spaces are not equal
+          let sneq : ¬sig=sig1 := begin
+           assume seq:sig=sig1,
+            let h : ¬sig1.2 = (n_eq.rec_on sig.2) := by cc,
+            let : sig1.2 = (n_eq.rec_on sig.2) := begin
+              simp [seq],
+              cc
+            end,
+            contradiction
+          end,
+          exact decidable.is_false sneq
+        end
+    else 
+      begin -- id's are not equal
+          let sneq : ¬sig=sig1 := begin
+           assume seq:sig=sig1,
+            let h : ¬sig1.2 = (n_eq.rec_on sig.2) := by cc,
+            let : sig1.2 = (n_eq.rec_on sig.2) := begin
+              simp [seq],
+              cc
+            end,
+            contradiction
+          end,
+          exact decidable.is_false sneq
+      end
+  else 
+    begin -- n ≠ n1
+          let sneq : ¬sig=sig1 := begin
+            assume seq:sig=sig1,
+            induction sig, induction sig1,
+            let : ¬sig_fst = sig1_fst := by cc,
+            cc,
+          end,
+          exact decidable.is_false sneq
+    end
+
+    
+def assignGeometryFrame  (sig : Σn:ℕ, euclideanGeometry n)
   : environment.env → lang.euclideanGeometry.frameVar sig → lang.euclideanGeometry.frameExpr sig → environment.env
 | i v e := 
   {
@@ -44,6 +140,111 @@ noncomputable def assignGeometryFrame  (sig : Σn:ℕ, euclideanGeometry n)
             ..i.g},
     ..i
   }
+/-
+inductive euclideanGeometryFrame
+    {n : ℕ }  
+    (sp : euclideanGeometry n) : Type
+| std 
+    : euclideanGeometryFrame
+| derived 
+    (fr : euclideanGeometryFrame)
+    (origin : euclideanGeometryPoint sp)
+    (basis : euclideanGeometryBasis sp)
+    (m : MeasurementSystem)
+    (or : AxisOrientation n)
+    : euclideanGeometryFrame
+| interpret
+    (fr : euclideanGeometryFrame)
+    (m : MeasurementSystem)
+    (or : AxisOrientation n)
+    : euclideanGeometryFrame
+-/
+instance fr_eq 
+  {n}
+  --{n1}
+  {sp : euclideanGeometry n}
+  --{sp1 : euclideanGeometry n}
+  --{sig : Σn:ℕ, euclideanGeometry n}
+  --{sig1 : Σn1:ℕ, euclideanGeometry n1}
+  {fr : euclideanGeometryFrame sp}
+  {fr1 : euclideanGeometryFrame sp}
+  : decidable (fr=fr1)
+  :=
+  --let spl : euclideanGeometryFrame sp → euclideanGeometryFrame sp → decidable (fr=fr1) := sorry in
+  --spl fr fr1
+  begin
+    cases fr,
+    {
+      cases fr1,
+      { exact decidable.is_true rfl },
+      { exact decidable.is_false (by contradiction) },
+      { exact decidable.is_false (by contradiction) }
+    },
+    {
+      cases fr1,
+      
+      { exact decidable.is_false (by contradiction) },
+      { 
+        let eqm := fr_m=fr1_m,
+        cases (eqm:bool),
+
+        exact decidable.is_true 
+          begin
+            --cases 
+          end
+      },
+      { exact decidable.is_false (by contradiction) }
+    },
+    {
+      cases fr1,
+      { exact decidable.is_false (by contradiction) },
+      { exact decidable.is_true rfl },
+      { exact decidable.is_false (by contradiction) }
+    }
+  end
+  --if n_eq : n=n1 then
+  --  if fr
+  --else 
+
+/-
+  if n_eq : sp=sp1 then 
+    begin
+      let t : sp = sp1 := begin
+        induction sp,
+        induction sp1,
+        let : sp=sp1 := by cc,
+        cc
+      end,
+      exact decidable.is_true t
+    end  
+  else
+    begin
+      let f : ¬(sp=sp1) := begin
+        
+        induction sp,
+        induction sp1,
+        let nsp : ¬(sp=sp1) := by cc,
+        --by cc,
+        simp *,
+      end,
+      exact decidable.is_false f
+    end  
+    -/
+
+instance  tr_eq
+  {sig : Σn,
+        (Σs:euclideanGeometry n,
+            Σfrom_:euclideanGeometryFrame s,
+                euclideanGeometryFrame s}
+  {sig1 : Σn,
+        (Σs1:euclideanGeometry n,
+            Σfrom_:euclideanGeometryFrame s1,
+                euclideanGeometryFrame s1}
+  : decidable (sig=sig1)  := 
+  begin
+    exact (decidable.is_true sorry)
+  end
+
 
 noncomputable def assignGeometryTransform 
   (sig : Σn,

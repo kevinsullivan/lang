@@ -11,8 +11,8 @@ open measurementSystem
                 else (i.t.sp r)), ..i.t},
     ..i
   }-/
-open classical
-local attribute [instance] prop_decidable --makes everything noncomputable which is problematic
+--open classical
+--local attribute [instance] prop_decidable --makes everything noncomputable which is problematic
 
 
 
@@ -109,6 +109,48 @@ noncomputable def assignTimePoint
             ..i.t},
     ..i
   }
+
+instance  sig_q_eq
+  {sig: Σs : classicalTime, MeasurementSystem}
+  {sig1: Σs : classicalTime, MeasurementSystem}
+  : decidable (sig=sig1)  := 
+  /-begin 
+    let sp_eq := sig.1=sig1.1,
+    let m_eq := sig.2 = sig1.2,
+    cases (sp_eq:bool),
+    {
+      cases (m_eq:bool),
+      {
+        let seq : sig=sig1 := begin
+          induction sig, induction sig1,
+          simp *,
+          exact and.intro sp_eq m_eq
+        end
+        
+      },
+      {
+
+      }
+    },
+    {sorry}
+  end-/
+  if sp_eq : sig.1=sig1.1 then
+    if m_eq : sig.2 = sig1.2 then
+      begin
+        let seq : sig = sig1 := begin
+          induction sig, induction sig1,
+          simp *,
+          cc
+
+        end,
+        
+      end
+    else begin
+
+    end
+  else begin
+
+  end
 
 noncomputable def assignTimeQuantity
     (sig: Σs : classicalTime, MeasurementSystem)
