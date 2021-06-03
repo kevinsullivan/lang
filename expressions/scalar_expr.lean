@@ -36,3 +36,4 @@ def time_scalar_expr.value
   static_scalar_eval default_scalar_env expr_
 
 instance : field scalar_expr := sorry
+notation `|`slit`|` := scalar_expr.lit slit --scalar_has_lit.cast slit
