@@ -10,7 +10,7 @@ universes u
 structure geom3d_frame_var extends var 
 
 
-inductive geom3d_frame_expr : Type 1 --{f : fm scalar T}
+inductive geom3d_frame_expr : Type 1
 | lit (f : geom3d_frame) : geom3d_frame_expr
 | var (v : geom3d_frame_var) : geom3d_frame_expr
 
@@ -67,15 +67,10 @@ def static_space_eval : geom3d_space_eval
 def geom3d_space_expr.value {f : geom3d_frame_expr} (expr_ : geom3d_space_expr f)  : geom3d_space f.value :=
   (static_space_eval f) (default_space_env) expr_
 
-/-
-Transform
--/
 structure transform_var  
   {f1 : geom3d_frame_expr} (sp1 : geom3d_space_expr f1) {f2 : geom3d_frame_expr} (sp2 : geom3d_space_expr f2) extends var
 
 inductive geom3d_transform_expr
-  --{f1 : geom3d_frame} {f2 : geom3d_frame} (sp1 : geom3d_space f1) (sp2:=sp1 : geom3d_space f2) 
- -- (sp1 : Σf1 : geom3d_frame, geom3d_space f1)  (sp2 : Σf2 : geom3d_frame, geom3d_space f2 := sp1)
   : Π {f1 : geom3d_frame_expr} (sp1 : geom3d_space_expr f1), Π {f2 : geom3d_frame_expr} (sp2 : geom3d_space_expr f2), Type 1
 | lit {f1 : geom3d_frame_expr} {sp1 : geom3d_space_expr f1} {f2 : geom3d_frame_expr} {sp2 : geom3d_space_expr f2} (p : geom3d_transform sp1.value sp2.value) : geom3d_transform_expr sp1 sp2
 | var {f1 : geom3d_frame_expr} {sp1 : geom3d_space_expr f1} {f2 : geom3d_frame_expr} {sp2 : geom3d_space_expr f2} (v : transform_var sp1 sp2) : geom3d_transform_expr sp1 sp2
@@ -134,11 +129,7 @@ def geom3d_transform_expr.value {f1 : geom3d_frame_expr} {sp1 : geom3d_space_exp
 variables {f1 : geom3d_frame_expr} {sp1 : geom3d_space_expr f1} {f2 : geom3d_frame_expr} {sp2 : geom3d_space_expr f2}
           (expr_ : geom3d_transform_expr sp1 sp2)
 
-#check expr_.value
 
---INVERSE CANNOT BE DEEPLY EMBEDDED - IT HAS A DIFFERENT TYPE
-
-/-
 class transform_has_inv 
   {f1 : geom3d_frame_expr} (sp1 : geom3d_space_expr f1) {f2 : geom3d_frame_expr} (sp2 : geom3d_space_expr f2) := 
   (inv : geom3d_transform_expr sp1 sp2 → geom3d_transform_expr sp2 sp1)
@@ -148,24 +139,6 @@ instance transform_inv {f1 : geom3d_frame_expr} {sp1 : geom3d_space_expr f1} {f2
   : transform_has_inv sp1 sp2 := ⟨λt,
     begin
       let lit := t.value,
-      let ftr := lit.1,
-      let mtr := ftr.1.symm,
-      let invlit : geom3d_transform sp2.value sp1.value := ⟨⟨mtr⟩⟩,
-      exact [invlit]
-    end
--/
-class transform_has_inv 
-  {f1 : geom3d_frame_expr} (sp1 : geom3d_space_expr f1) {f2 : geom3d_frame_expr} (sp2 : geom3d_space_expr f2) := 
-  (inv : geom3d_transform_expr sp1 sp2 → geom3d_transform_expr sp2 sp1)
-notation tr⁻¹:= transform_has_inv.inv tr
-
-instance transform_inv {f1 : geom3d_frame_expr} {sp1 : geom3d_space_expr f1} {f2 : geom3d_frame_expr} {sp2 : geom3d_space_expr f2} 
-  : transform_has_inv sp1 sp2 := ⟨λt,
-    begin
-      let lit := t.value,
-     -- let ftr := lit.1,
-     -- let mtr := ftr.1.symm,
-     -- let invlit : geom3d_transform sp2.value sp1.value := ⟨⟨mtr⟩⟩,
      exact (geom3d_transform_expr.inv_lit lit),
     end⟩
 
@@ -176,18 +149,10 @@ def geom3d_transform_expr.trans
  := λt2,
  geom3d_transform_expr.compose_lit expr_.value t2.value
 
---instance scalar_lit (sp : scalar_expr) : scalar_has_lit  sp := 
---  ⟨λt : scalar, scalar_expr.lit t⟩
-/-
-Duration
--/
+
 structure displacement3d_var {f : geom3d_frame_expr} (sp : geom3d_space_expr f) extends var 
 
-/-
-Time
--/
 structure position3d_var  {f : geom3d_frame_expr} (sp : geom3d_space_expr f) extends var
-set_option trace.app_builder true --need to fix scalar for this to work
 
 mutual inductive displacement3d_expr, position3d_expr {f : geom3d_frame_expr} (sp : geom3d_space_expr f)
 with displacement3d_expr : Type 1
@@ -195,17 +160,17 @@ with displacement3d_expr : Type 1
 | one : displacement3d_expr 
 | lit (v : displacement3d sp.value) : displacement3d_expr
 | var (v : displacement3d_var sp) : displacement3d_expr
-| add_dur_dur (d1 : displacement3d_expr) (d2 : displacement3d_expr) : displacement3d_expr
-| neg_dur (d : displacement3d_expr) : displacement3d_expr
-| sub_dur_dur (d1 : displacement3d_expr) (d2 : displacement3d_expr) : displacement3d_expr
+| add_displacement3d_displacement3d (d1 : displacement3d_expr) (d2 : displacement3d_expr) : displacement3d_expr
+| neg_displacement3d (d : displacement3d_expr) : displacement3d_expr
+| sub_displacement3d_displacement3d (d1 : displacement3d_expr) (d2 : displacement3d_expr) : displacement3d_expr
 | sub_position3d_position3d (t1 : position3d_expr) (t2 : position3d_expr) : displacement3d_expr
-| smul_dur (k : scalar_expr) (d : displacement3d_expr) : displacement3d_expr
+| smul_displacement3d (k : scalar_expr) (d : displacement3d_expr) : displacement3d_expr
 | apply_displacement3d_lit {f2 : geom3d_frame_expr} {sp2 : geom3d_space_expr f2} (v : geom3d_transform_expr sp2 sp) 
     (d : displacement3d sp2.value) : displacement3d_expr
 with position3d_expr : Type 1
 | lit (p : position3d sp.value) : position3d_expr
 | var (v : position3d_var sp) : position3d_expr
-| add_dur_position3d (d : displacement3d_expr) (t : position3d_expr) : position3d_expr
+| add_displacement3d_position3d (d : displacement3d_expr) (t : position3d_expr) : position3d_expr
 | apply_position3d_lit {f2 : geom3d_frame_expr} {sp2 : geom3d_space_expr f2} (v : geom3d_transform_expr sp2 sp) 
     (t : position3d sp2.value) : position3d_expr
 
@@ -227,14 +192,9 @@ def default_displacement3d_env {f : geom3d_frame_expr} (sp : geom3d_space_expr f
 def default_displacement3d_eval : displacement3d_eval  
   := λf sp, λtenv_, λdenv_, λexpr_, 
   begin
-    --cases expr_,
-    --exact expr_,
-    --exact default_displacement3d_env sp expr_,
     repeat {exact (mk_displacement3d sp.value 1 1 1)}
   end
 
---this needs to get fixed, perhaps eval should not depend on env but use a global one *shrug*
---OR, a point evaluator needs to depend on a vector environment, and vice versa? may be acceptable
 def default_position3d_env {f : geom3d_frame_expr} (sp : geom3d_space_expr f) : position3d_env sp 
   := (λv, (mk_position3d sp.value  1 1 1))
 
@@ -246,16 +206,16 @@ with static_displacement3d_eval : displacement3d_eval
 | f sp tenv_ denv_ (displacement3d_expr.one) := mk_displacement3d sp.value 1 1 1
 | f sp tenv_ denv_ (displacement3d_expr.lit d) := d
 | f sp tenv_ denv_ (displacement3d_expr.var v) := denv_ v
-| f sp tenv_ denv_ (displacement3d_expr.add_dur_dur d1 d2) := (static_displacement3d_eval sp tenv_ denv_ d1) +ᵥ (static_displacement3d_eval sp tenv_ denv_ d2)
-| f sp tenv_ denv_ (displacement3d_expr.neg_dur d) := -(static_displacement3d_eval sp tenv_ denv_ d)
-| f sp tenv_ denv_ (displacement3d_expr.sub_dur_dur d1 d2) := (static_displacement3d_eval sp tenv_ denv_ d1) -ᵥ (static_displacement3d_eval sp tenv_ denv_ d2)
+| f sp tenv_ denv_ (displacement3d_expr.add_displacement3d_displacement3d d1 d2) := (static_displacement3d_eval sp tenv_ denv_ d1) +ᵥ (static_displacement3d_eval sp tenv_ denv_ d2)
+| f sp tenv_ denv_ (displacement3d_expr.neg_displacement3d d) := -(static_displacement3d_eval sp tenv_ denv_ d)
+| f sp tenv_ denv_ (displacement3d_expr.sub_displacement3d_displacement3d d1 d2) := (static_displacement3d_eval sp tenv_ denv_ d1) -ᵥ (static_displacement3d_eval sp tenv_ denv_ d2)
 | f sp tenv_ denv_ (displacement3d_expr.sub_position3d_position3d t1 t2) := (static_position3d_eval sp tenv_ denv_ t1) -ᵥ (static_position3d_eval sp tenv_ denv_ t2)
-| f sp tenv_ denv_ (displacement3d_expr.smul_dur s d) := (static_scalar_eval default_scalar_env s)•(static_displacement3d_eval sp tenv_ denv_ d)
+| f sp tenv_ denv_ (displacement3d_expr.smul_displacement3d s d) := (static_scalar_eval default_scalar_env s)•(static_displacement3d_eval sp tenv_ denv_ d)
 | f sp tenv_ denv_ (displacement3d_expr.apply_displacement3d_lit t d) := t.value.transform_displacement3d d
 with static_position3d_eval : position3d_eval
 | f sp tenv_ denv_ (position3d_expr.lit p) := p
 | f sp tenv_ denv_ (position3d_expr.var v) := tenv_ v
-| f sp tenv_ denv_ (position3d_expr.add_dur_position3d d t) := (static_displacement3d_eval sp tenv_ denv_ d) +ᵥ (static_position3d_eval sp tenv_ denv_ t)
+| f sp tenv_ denv_ (position3d_expr.add_displacement3d_position3d d t) := (static_displacement3d_eval sp tenv_ denv_ d) +ᵥ (static_position3d_eval sp tenv_ denv_ t)
 | f sp tenv_ denv_ (position3d_expr.apply_position3d_lit tr t) := tr.value.transform_position3d t
 
 
@@ -267,37 +227,12 @@ def default_position3d_eval : position3d_eval := λf sp, λtenv_, λdenv_, λexp
     repeat {exact (mk_position3d sp.value 1 1 1)}
   end
 
-#check position3d_env
-#check default_position3d_env
-
 def position3d_expr.value {f : geom3d_frame_expr} {sp : geom3d_space_expr f} (expr_ : position3d_expr sp) : position3d sp.value :=
   (static_position3d_eval sp) (default_position3d_env sp) (default_displacement3d_env sp) expr_
 
 def displacement3d_expr.value {f : geom3d_frame_expr} {sp : geom3d_space_expr f} (expr_ : displacement3d_expr sp) : displacement3d sp.value :=
   (static_displacement3d_eval sp) (default_position3d_env sp) (default_displacement3d_env sp) expr_
 
-
---not working -- lean doesn't play nice with notation and dependent types
---notation `|`flit`|` := geom3d_frame_expr.lit flit
---notation `|`slit`|` := geom3d_space_expr.lit slit
---instance {scalar : Type u} [field scalar] [inhabited scalar] {f : geom3d_frame} {sp : geom3d_space f} : has_coe (position3d sp) (position3d_expr sp) := ⟨λt, position3d_expr.lit t⟩
---instance {scalar : Type u} [field scalar] [inhabited scalar] {f : geom3d_frame} {sp : geom3d_space f} : has_coe (displacement3d sp) (displacement3d_expr sp) := ⟨λt, displacement3d_expr.lit t⟩
---instance {scalar : Type u} [field scalar] [inhabited scalar] : has_coe (geom3d_frame) (geom3d_frame_expr scalar) := ⟨λf, geom3d_frame_expr.lit f⟩
---instance {scalar : Type u} [field scalar] [inhabited scalar] {f : geom3d_frame} : has_coe (geom3d_space f) (geom3d_space_expr scalar) := ⟨λs, geom3d_space_expr.lit s⟩
-
-/-
-class has_lit (t1 : Type 0) (t2 : Type 1) :=
-  (cast : t1 → t2)
-notation `|`lit`|` := has_lit.cast lit
-instance position3d_lit {f : geom3d_frame_expr} {sp : geom3d_space_expr f } : has_lit (position3d sp.value) (position3d_expr sp) :=
-  ⟨λt, position3d_expr.lit t⟩
-instance displacement3d_lit {f : geom3d_frame_expr} {sp : geom3d_space_expr f } : has_lit (displacement3d sp.value) (displacement3d_expr sp) :=
-  ⟨λd, displacement3d_expr.lit d⟩
-instance position3d_space_lit {f : geom3d_frame_expr} : has_lit (geom3d_space f.value) (geom3d_space_expr f) :=
-  ⟨λs, geom3d_space_expr.lit s⟩
-instance position3d_frame_lit : has_lit (geom3d_frame) (geom3d_frame_expr) :=
-  ⟨λf, geom3d_frame_expr.lit f⟩
--/
 
 class position3d_has_lit {f : geom3d_frame_expr} (sp : geom3d_space_expr f) := 
   (cast : position3d sp.value → position3d_expr sp)
@@ -331,246 +266,83 @@ instance position3d_space_lit {f : geom3d_frame_expr} : position3d_space_has_lit
 variables  {f : geom3d_frame_expr} {sp : geom3d_space_expr f} 
 
 
-/-
-Analogous methods provided at math layer
--/
 #check mk_frame
 
 #check mk_frame
-def mk_geom3d_frame_expr {f : geom3d_frame_expr} {sp : geom3d_space_expr f} (o : position3d_expr sp) (b : displacement3d_expr sp) : geom3d_frame_expr :=
-  |(mk_geom3d_frame o.value b.value)|
-/-
-4/7
-WRITE THIS FUNCTION LATER. 
-YOU NEED TO GET THE VALUE OUT OF THE f PARAMETER TO INCLUDE IT IN THE TYPE
-AND THEN USE IT IN THE CONSTRUCTOR
--/
+def mk_geom3d_frame_expr {f : geom3d_frame_expr} {sp : geom3d_space_expr f} (o : position3d_expr sp) 
+  (b0 : displacement3d_expr sp) (b1 : displacement3d_expr sp) (b2 : displacement3d_expr sp) : geom3d_frame_expr :=
+  |(mk_geom3d_frame o.value b0.value b1.value b2.value)|
+
+
 #check mk_space 
 def mk_geom3d_space_expr (f : geom3d_frame_expr) : geom3d_space_expr f :=
   geom3d_space_expr.mk
 
 
 
-def add_dur_expr_dur_expr (v1 v2 : displacement3d_expr sp) : displacement3d_expr sp := 
-  displacement3d_expr.add_dur_dur v1 v2
+instance has_one_displacement3d_expr : has_one (displacement3d_expr sp) := ⟨displacement3d_expr.one⟩
+instance has_add_displacement3d_expr : has_add (displacement3d_expr sp) := ⟨λ v1 v2, displacement3d_expr.add_displacement3d_displacement3d v1 v2 ⟩
+instance has_zero_displacement3d_expr : has_zero (displacement3d_expr sp) := ⟨displacement3d_expr.zero⟩
 
-def smul_dur_expr (k : scalar_expr) (v : displacement3d_expr sp) : displacement3d_expr sp := 
-    displacement3d_expr.smul_dur k v
+instance has_neg_displacement3d_expr : has_neg (displacement3d_expr sp) := ⟨λv1, displacement3d_expr.neg_displacement3d v1⟩
+instance has_sub_displacement3d_expr : has_sub (displacement3d_expr sp) := ⟨λ v1 v2, displacement3d_expr.sub_displacement3d_displacement3d v1 v2⟩ 
 
-def neg_dur_expr (v : displacement3d_expr sp) : displacement3d_expr sp := 
-    displacement3d_expr.neg_dur v
-
-def sub_dur_expr_dur_expr (v1 v2 : displacement3d_expr sp) : displacement3d_expr sp :=    -- v1-v2
-    displacement3d_expr.sub_dur_dur v1 v2
-
--- See unframed file for template for proving vector_space
-instance has_one_dur_expr : has_one (displacement3d_expr sp) := ⟨displacement3d_expr.one⟩
-
-instance has_add_dur_expr : has_add (displacement3d_expr sp) := ⟨ add_dur_expr_dur_expr ⟩
-
-/-
-THIS IS UNPROVABLE
--/
-lemma add_assoc_dur_expr : ∀ a b c : displacement3d_expr sp, a + b + c = a + (b + c) :=
-begin
-    intros,
-    cases a,
-    { 
-
-    },
-    { 
-
-    },
-    { 
-
-    },
-    { 
-
-    },
-    { 
-
-    },
-    { 
-
-    },
-    { 
-
-    },
-    { 
-
-    },
-    { 
-
-    },
-    { 
-      
-    }
-end
-
-instance add_semigroup_dur_expr : add_semigroup (displacement3d_expr sp) := ⟨ add_dur_expr_dur_expr, add_assoc_dur_expr⟩ 
-
-def dur_expr_zero : displacement3d_expr sp := displacement3d_expr.zero--displacement3d_expr.lit (mk_displacement3d sp.value 0)
-instance has_zero_dur_expr : has_zero (displacement3d_expr sp) := ⟨dur_expr_zero⟩
-
-lemma zero_add_dur_expr : ∀ a : displacement3d_expr sp, 0 + a = a := sorry
-lemma add_zero_dur_expr : ∀ a : displacement3d_expr sp, a + 0 = a := sorry
-instance add_monoid_dur_expr : add_monoid (displacement3d_expr sp) := ⟨ 
-    -- add_semigroup
-    add_dur_expr_dur_expr, 
-    add_assoc_dur_expr, 
-    -- has_zero
-    dur_expr_zero,
-    -- new structure 
-    sorry,--@zero_add_dur_expr _ _ f sp, 
-    add_zero_dur_expr
-⟩
-
-instance has_neg_dur_expr : has_neg (displacement3d_expr sp) := ⟨neg_dur_expr⟩
-instance has_sub_dur_expr : has_sub (displacement3d_expr sp) := ⟨ sub_dur_expr_dur_expr⟩ 
-lemma sub_eq_add_neg_dur_expr : ∀ a b : displacement3d_expr sp, a - b = a + -b := sorry
-instance sub_neg_monoid_dur_expr : sub_neg_monoid (displacement3d_expr sp) := ⟨ 
-    add_dur_expr_dur_expr, add_assoc_dur_expr, dur_expr_zero, 
-    zero_add_dur_expr, 
-    add_zero_dur_expr, -- add_monoid
-    neg_dur_expr,                                                                  -- has_neg
-    sub_dur_expr_dur_expr,                                                              -- has_sub
-    sub_eq_add_neg_dur_expr,                                                       -- new
-⟩ 
-
-lemma add_left_neg_dur_expr : ∀ a : displacement3d_expr sp, -a + a = 0 := sorry
-instance : add_group (displacement3d_expr sp) := ⟨
-    -- sub_neg_monoid
-    add_dur_expr_dur_expr, add_assoc_dur_expr, dur_expr_zero, zero_add_dur_expr, add_zero_dur_expr, -- add_monoid
-    neg_dur_expr,                                                                  -- has_neg
-    sub_dur_expr_dur_expr,                                                              -- has_sub
-    sub_eq_add_neg_dur_expr, 
-    -- new
-    add_left_neg_dur_expr,
-⟩ 
-
-lemma add_comm_dur_expr : ∀ a b : displacement3d_expr sp, a + b = b + a := sorry
-instance add_comm_semigroup_dur_expr : add_comm_semigroup (displacement3d_expr sp) := ⟨
-    -- add_semigroup
-    add_dur_expr_dur_expr, 
-    add_assoc_dur_expr,
-    add_comm_dur_expr,
-⟩
-
-instance add_comm_monoid_dur_expr : add_comm_monoid (displacement3d_expr sp) := ⟨
--- add_monoid
-    -- add_semigroup
-    add_dur_expr_dur_expr, 
-    add_assoc_dur_expr, 
-    -- has_zero
-    dur_expr_zero,
-    -- new structure 
-    zero_add_dur_expr, 
-    add_zero_dur_expr,
--- add_comm_semigroup (minus repeats)
-    add_comm_dur_expr,
-⟩
-
-instance has_scalar_dur_expr : has_scalar scalar_expr (displacement3d_expr sp) := ⟨
-smul_dur_expr,
-⟩
-instance : has_one scalar_expr := sorry
-instance : monoid scalar_expr := sorry
-instance : has_zero scalar_expr := sorry
-
-lemma one_smul_dur_expr : ∀ b : displacement3d_expr sp, (1 : scalar_expr) • b = b := sorry
-lemma mul_smul_dur_expr : ∀ (x y : scalar_expr) (b : displacement3d_expr sp), (x * y) • b = x • y • b := sorry
-instance mul_action_dur_expr : mul_action scalar_expr (displacement3d_expr sp) := sorry /-⟨
-one_smul_dur_expr,
-mul_smul_dur_expr,
-⟩ -/
-
-lemma smul_add_dur_expr : ∀(r : scalar_expr) (x y : displacement3d_expr sp), r • (x + y) = r • x + r • y := sorry
-lemma smul_zero_dur_expr : ∀(r : scalar_expr), r • (0 : displacement3d_expr sp) = 0 := sorry
-instance distrib_mul_action_K_dur_exprKx : distrib_mul_action scalar_expr (displacement3d_expr sp) := ⟨
-smul_add_dur_expr,
-smul_zero_dur_expr,
-⟩ 
-
--- renaming vs template due to clash with name "s" for prevailing variable
-lemma add_smul_dur_expr : ∀ (a b : scalar_expr) (x : displacement3d_expr sp), (a + b) • x = a • x + b • x := sorry
-lemma zero_smul_dur_expr : ∀ (x : displacement3d_expr sp), (0 : scalar_expr) • x = 0 := sorry
-instance semimodule_K_displacement3dK : semimodule scalar_expr (displacement3d_expr sp) := ⟨ add_smul_dur_expr, zero_smul_dur_expr ⟩ 
-
-instance add_comm_group_dur_expr : add_comm_group (displacement3d_expr sp) := ⟨
--- add_group
-    add_dur_expr_dur_expr, add_assoc_dur_expr, dur_expr_zero, zero_add_dur_expr, add_zero_dur_expr, -- add_monoid
-    neg_dur_expr,                                                                  -- has_neg
-    sub_dur_expr_dur_expr,                                                              -- has_sub
-    sub_eq_add_neg_dur_expr, 
-    add_left_neg_dur_expr,
--- commutativity
-    add_comm_dur_expr,
-⟩
+instance : has_vadd (displacement3d_expr sp) (position3d_expr sp) := ⟨λv p, position3d_expr.add_displacement3d_position3d v p⟩
+instance : has_vsub (displacement3d_expr sp) (position3d_expr sp) := ⟨λt1 t2, displacement3d_expr.sub_position3d_position3d t1 t2⟩
 
 
-instance : vector_space scalar (displacement3d_expr sp) := sorry
-
-
-/-
-    ********************
-    *** Affine space ***
-    ********************
--/
-
-
-/-
-Affine operations
--/
-instance : has_add (displacement3d_expr sp) := ⟨add_dur_expr_dur_expr⟩
-instance : has_zero (displacement3d_expr sp) := ⟨dur_expr_zero⟩
-instance : has_neg (displacement3d_expr sp) := ⟨neg_dur_expr⟩
-
-/-
-Lemmas needed to implement affine space API
--/
-
-def sub_position3d_expr_position3d_expr {f : geom3d_frame_expr} {sp : geom3d_space_expr f}  (p1 p2 : position3d_expr sp) : displacement3d_expr sp := 
-    displacement3d_expr.sub_position3d_position3d p1 p2
-def add_position3d_expr_dur_expr {f : geom3d_frame_expr} {sp : geom3d_space_expr f}  (p : position3d_expr sp) (v : displacement3d_expr sp) : position3d_expr sp := 
-    position3d_expr.add_dur_position3d v p
-def add_dur_expr_position3d_expr {f : geom3d_frame_expr} {sp : geom3d_space_expr f}  (v : displacement3d_expr sp) (p : position3d_expr sp) : position3d_expr sp := 
-    position3d_expr.add_dur_position3d v p
-
-def aff_dur_expr_group_action {f : geom3d_frame_expr} {sp : geom3d_space_expr f} : displacement3d_expr sp → position3d_expr sp → position3d_expr sp := add_dur_expr_position3d_expr
-instance {f : geom3d_frame_expr} {sp : geom3d_space_expr f} : has_vadd (displacement3d_expr sp) (position3d_expr sp) := ⟨λd, λt, position3d_expr.add_dur_position3d d t⟩
-
-def spf : geom3d_space_expr [geom3d_std_frame] := [(geom3d_std_space)]
-
-variables (d d2 : displacement3d_expr spf) (t : position3d_expr spf) (df : displacement3d_expr spf)
-
-#check position3d_expr.add_dur_position3d d t
-
-lemma zero_dur_expr_vadd'_a1 {f : geom3d_frame_expr} {sp : geom3d_space_expr f} : ∀ p : position3d_expr sp, (0 : displacement3d_expr sp) +ᵥ p = p := sorry
-lemma dur_expr_add_assoc'_a1 : ∀ (g1 g2 : displacement3d_expr sp) (p : position3d_expr sp), g1 +ᵥ (g2 +ᵥ p) = (g1 + g2) +ᵥ p := sorry
-instance dur_expr_add_action: add_action (displacement3d_expr sp) (position3d_expr sp) := 
-⟨ aff_dur_expr_group_action, zero_dur_expr_vadd'_a1, dur_expr_add_assoc'_a1 ⟩ 
-
-def aff_position3d_expr_group_sub : position3d_expr sp → position3d_expr sp → displacement3d_expr sp := sub_position3d_expr_position3d_expr
-instance position3d_expr_has_vsub : has_vsub (displacement3d_expr sp) (position3d_expr sp) := ⟨ aff_position3d_expr_group_sub ⟩ 
-
-
-instance : nonempty (position3d_expr sp) := ⟨position3d_expr.lit (mk_position3d sp.value  0)⟩
-
-lemma position3d_expr_vsub_vadd_a1 : ∀ (p1 p2 : (position3d_expr sp)), (p1 -ᵥ p2) +ᵥ p2 = p1 := sorry
-lemma position3d_expr_vadd_vsub_a1 : ∀ (g : displacement3d_expr sp) (p : position3d_expr sp), g +ᵥ p -ᵥ p = g := sorry
-instance aff_position3d_expr_torsor : add_torsor (displacement3d_expr sp) (position3d_expr sp) := --affine space! 
-⟨ 
-    aff_dur_expr_group_action,
-    zero_dur_expr_vadd'_a1,    -- add_action
-    dur_expr_add_assoc'_a1,   -- add_action
-    aff_position3d_expr_group_sub,    -- has_vsub
-    position3d_expr_vsub_vadd_a1,     -- add_torsor
-    position3d_expr_vadd_vsub_a1,     -- add_torsor
-⟩
-
-notation t+ᵥv := add_dur_expr_position3d_expr v t
-notation d•k :=  smul_dur_expr k d
-notation tr⬝d := displacement3d_expr.apply_displacement3d_lit tr d
+notation t+ᵥv := has_vadd.vadd v t
+notation k•d :=  displacement3d_expr.smul_displacement3d k d
+notation d•k :=  displacement3d_expr.smul_displacement3d k d
+notation tr⬝d := displacement3d_expr.apply_displacement3dation_lit tr d
 notation tr⬝t := position3d_expr.apply_position3d_lit tr t
+notation tr∘tr := geom3d_transform_expr.compose_lit tr tr
+
+variables (d1 : displacement3d_expr sp) (t1 : position3d_expr sp) (s : scalar_expr)
+
+#check d1 + d1
+#check d1 - d1
+#check (0 : displacement3d_expr sp)
+#check s•d1
+#check d1•s
+#check d1 +ᵥ t1
+#check t1 +ᵥ d1
+#check t1 -ᵥ t1
+
+
+
+class geom3d_transform_has_complit 
+  {f1 : geom3d_frame_expr} (sp1 : geom3d_space_expr f1) 
+  {f2 : geom3d_frame_expr} (sp2 : geom3d_space_expr f2)
+  {f3 : geom3d_frame_expr} (sp3 : geom3d_space_expr f3)  
+  := 
+  (cast : 
+    geom3d_transform sp1.value sp2.value → 
+    geom3d_transform sp2.value sp3.value →
+    geom3d_transform_expr sp1 sp3)
+notation tr1`∘`tr2 := geom3d_transform_has_complit.cast tr1 tr2
+instance g3dcomplit
+  {f1 : geom3d_frame_expr} {sp1 : geom3d_space_expr f1} 
+  {f2 : geom3d_frame_expr} {sp2 : geom3d_space_expr f2}
+  {f3 : geom3d_frame_expr} {sp3 : geom3d_space_expr f3} : geom3d_transform_has_complit sp1 sp2 sp3 := 
+    ⟨λt1 t2, geom3d_transform_expr.compose_lit t1 t2⟩ 
+
+
+class geom3d_transform_has_comp 
+  {f1 : geom3d_frame_expr} (sp1 : geom3d_space_expr f1) 
+  {f2 : geom3d_frame_expr} (sp2 : geom3d_space_expr f2)
+  {f3 : geom3d_frame_expr} (sp3 : geom3d_space_expr f3)  
+  := 
+  (cast : 
+    geom3d_transform_expr sp1 sp2 → 
+    geom3d_transform_expr sp2 sp3 →
+    geom3d_transform_expr sp1 sp3)
+notation tr1`∘`tr2 := geom3d_transform_has_comp.cast tr1 tr2
+instance g3dcomp
+  {f1 : geom3d_frame_expr} {sp1 : geom3d_space_expr f1} 
+  {f2 : geom3d_frame_expr} {sp2 : geom3d_space_expr f2}
+  {f3 : geom3d_frame_expr} {sp3 : geom3d_space_expr f3} : geom3d_transform_has_comp sp1 sp2 sp3 := 
+    ⟨λt1 t2, geom3d_transform_expr.compose t1 t2⟩ 
+--notation tr∘tr := geom3d_transform_expr.compose_lit tr tr
 
 end lang.geom3d
