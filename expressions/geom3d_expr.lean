@@ -265,20 +265,12 @@ instance position3d_space_lit {f : geom3d_frame_expr} : position3d_space_has_lit
 
 variables  {f : geom3d_frame_expr} {sp : geom3d_space_expr f} 
 
-
-#check mk_frame
-
-#check mk_frame
 def mk_geom3d_frame_expr {f : geom3d_frame_expr} {sp : geom3d_space_expr f} (o : position3d_expr sp) 
   (b0 : displacement3d_expr sp) (b1 : displacement3d_expr sp) (b2 : displacement3d_expr sp) : geom3d_frame_expr :=
   |(mk_geom3d_frame o.value b0.value b1.value b2.value)|
 
-
-#check mk_space 
 def mk_geom3d_space_expr (f : geom3d_frame_expr) : geom3d_space_expr f :=
   geom3d_space_expr.mk
-
-
 
 instance has_one_displacement3d_expr : has_one (displacement3d_expr sp) := ⟨displacement3d_expr.one⟩
 instance has_add_displacement3d_expr : has_add (displacement3d_expr sp) := ⟨λ v1 v2, displacement3d_expr.add_displacement3d_displacement3d v1 v2 ⟩
@@ -297,19 +289,6 @@ notation d•k :=  displacement3d_expr.smul_displacement3d k d
 notation tr⬝d := displacement3d_expr.apply_displacement3dation_lit tr d
 notation tr⬝t := position3d_expr.apply_position3d_lit tr t
 notation tr∘tr := geom3d_transform_expr.compose_lit tr tr
-
-variables (d1 : displacement3d_expr sp) (t1 : position3d_expr sp) (s : scalar_expr)
-
-#check d1 + d1
-#check d1 - d1
-#check (0 : displacement3d_expr sp)
-#check s•d1
-#check d1•s
-#check d1 +ᵥ t1
-#check t1 +ᵥ d1
-#check t1 -ᵥ t1
-
-
 
 class geom3d_transform_has_complit 
   {f1 : geom3d_frame_expr} (sp1 : geom3d_space_expr f1) 
@@ -343,6 +322,117 @@ instance g3dcomp
   {f2 : geom3d_frame_expr} {sp2 : geom3d_space_expr f2}
   {f3 : geom3d_frame_expr} {sp3 : geom3d_space_expr f3} : geom3d_transform_has_comp sp1 sp2 sp3 := 
     ⟨λt1 t2, geom3d_transform_expr.compose t1 t2⟩ 
---notation tr∘tr := geom3d_transform_expr.compose_lit tr tr
+
+
+structure orientation3d_var {f : geom3d_frame_expr} (sp : geom3d_space_expr f) extends var
+
+inductive orientation3d_expr {f : geom3d_frame_expr} (sp : geom3d_space_expr f) : Type 1
+| lit (v : orientation3d sp.value) : orientation3d_expr
+
+class orientation3d_has_lit {f : geom3d_frame_expr} (sp : geom3d_space_expr f) := 
+  (cast : orientation3d sp.value → orientation3d_expr sp)
+notation `|`tlit`|` := orientation3d_has_lit.cast tlit
+
+instance orientation3d_lit {f : geom3d_frame_expr} (sp : geom3d_space_expr f) : orientation3d_has_lit  sp := 
+  ⟨λt : orientation3d sp.value, orientation3d_expr.lit t⟩
+
+
+abbreviation orientation3d_env {f : geom3d_frame_expr} (sp : geom3d_space_expr f) :=
+  orientation3d_var sp → orientation3d sp.value
+abbreviation orientation3d_eval := Π{f : geom3d_frame_expr} (sp : geom3d_space_expr f),
+  orientation3d_env sp → orientation3d_expr sp → orientation3d sp.value
+
+
+noncomputable def default_orientation3d_env {f : geom3d_frame_expr} (sp : geom3d_space_expr f) : orientation3d_env sp := 
+  λv, mk_orientation3d sp.value 
+    (mk_displacement3d sp.value 1 2 3) (mk_displacement3d sp.value 1 2 3) (mk_displacement3d sp.value 1 2 3) 
+def default_orientation3d_eval : orientation3d_eval := λf s, λenv_, λexpr_, 
+  begin
+    cases expr_,
+    exact expr_
+  end
+
+def static_orientation3d_eval : orientation3d_eval 
+| f sp env_ (orientation3d_expr.lit or) := or
+
+noncomputable def orientation3d_expr.value {f : geom3d_frame_expr} {sp : geom3d_space_expr f} (expr_ : orientation3d_expr sp)  
+    : orientation3d sp.value :=
+  (static_orientation3d_eval sp) (default_orientation3d_env sp) expr_
+
+
+structure rotation3d_var {f : geom3d_frame_expr} (sp : geom3d_space_expr f) extends var
+
+inductive rotation3d_expr {f : geom3d_frame_expr} (sp : geom3d_space_expr f) : Type 1
+| lit (v : rotation3d sp.value) : rotation3d_expr
+
+class rotation3d_has_lit {f : geom3d_frame_expr} (sp : geom3d_space_expr f) := 
+  (cast : rotation3d sp.value → rotation3d_expr sp)
+notation `|`tlit`|` := rotation3d_has_lit.cast tlit
+
+instance rotation3d_lit {f : geom3d_frame_expr} (sp : geom3d_space_expr f) : rotation3d_has_lit  sp := 
+  ⟨λt : rotation3d sp.value, rotation3d_expr.lit t⟩
+
+
+abbreviation rotation3d_env {f : geom3d_frame_expr} (sp : geom3d_space_expr f) :=
+  rotation3d_var sp → rotation3d sp.value
+abbreviation rotation3d_eval := Π{f : geom3d_frame_expr} (sp : geom3d_space_expr f),
+  rotation3d_env sp → rotation3d_expr sp → rotation3d sp.value
+
+
+noncomputable def default_rotation3d_env {f : geom3d_frame_expr} (sp : geom3d_space_expr f) : rotation3d_env sp := 
+  λv, mk_rotation3d sp.value 
+    (mk_displacement3d sp.value 1 2 3) (mk_displacement3d sp.value 1 2 3) (mk_displacement3d sp.value 1 2 3) 
+def default_rotation3d_eval : rotation3d_eval := λf s, λenv_, λexpr_, 
+  begin
+    cases expr_,
+    exact expr_
+  end
+  
+def static_rotation3d_eval : rotation3d_eval 
+| f sp env_ (rotation3d_expr.lit or) := or
+
+noncomputable def rotation3d_expr.value {f : geom3d_frame_expr} {sp : geom3d_space_expr f} (expr_ : rotation3d_expr sp)  
+    : rotation3d sp.value :=
+  (static_rotation3d_eval sp) (default_rotation3d_env sp) expr_
+
+
+
+structure pose3d_var {f : geom3d_frame_expr} (sp : geom3d_space_expr f) extends var
+
+inductive pose3d_expr {f : geom3d_frame_expr} (sp : geom3d_space_expr f) : Type 1
+| lit (v : pose3d sp.value) : pose3d_expr
+
+class pose3d_has_lit {f : geom3d_frame_expr} (sp : geom3d_space_expr f) := 
+  (cast : pose3d sp.value → pose3d_expr sp)
+notation `|`tlit`|` := pose3d_has_lit.cast tlit
+
+instance pose3d_lit {f : geom3d_frame_expr} (sp : geom3d_space_expr f) : pose3d_has_lit  sp := 
+  ⟨λt : pose3d sp.value, pose3d_expr.lit t⟩
+
+
+abbreviation pose3d_env {f : geom3d_frame_expr} (sp : geom3d_space_expr f) :=
+  pose3d_var sp → pose3d sp.value
+abbreviation pose3d_eval := Π{f : geom3d_frame_expr} (sp : geom3d_space_expr f),
+  pose3d_env sp → pose3d_expr sp → pose3d sp.value
+
+
+noncomputable def default_pose3d_env {f : geom3d_frame_expr} (sp : geom3d_space_expr f) : pose3d_env sp := 
+  λv, mk_pose3d sp.value 
+    (mk_orientation3d sp.value 
+    (mk_displacement3d sp.value 0 0 0) (mk_displacement3d sp.value 0 0 0) (mk_displacement3d sp.value 0 0 0)) 
+    (mk_position3d sp.value 0 0 0)
+    
+def default_pose3d_eval : pose3d_eval := λf s, λenv_, λexpr_, 
+  begin
+    cases expr_,
+    exact expr_
+  end
+  
+def static_pose3d_eval : pose3d_eval 
+| f sp env_ (pose3d_expr.lit or) := or
+
+noncomputable def pose3d_expr.value {f : geom3d_frame_expr} {sp : geom3d_space_expr f} (expr_ : pose3d_expr sp)  
+    : pose3d sp.value :=
+  (static_pose3d_eval sp) (default_pose3d_env sp) expr_
 
 end lang.geom3d
