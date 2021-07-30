@@ -50,4 +50,12 @@ notation `|`slit`|` := bool_expr.lit slit
 notation s1<s2 := bool_expr.scalar_lt_scalar s1 s2
 notation d1<d2 := bool_expr.duration_lt_duration d1 d2
 
+inductive bool_sem : ∀ b : bool_expr, Type 1
+| bool_eval_true (b : bool_expr) (is_true : b.value = tt) : bool_sem b
+| bool_eval_false (b : bool_expr) (is_false : b.value = ff) : bool_sem b
+
+meta def check_bool_true : ∀b : bool_expr,  tactic (bool_sem b)
+| b := tactic.fail "wrong prop"
+--| _ _ := tactic.fail "bad prop"
+
 end lang.bool_expr

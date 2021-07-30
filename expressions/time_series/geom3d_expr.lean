@@ -15,6 +15,71 @@ open lang.time
 
 variables {fr : time_frame_expr} (ts : time_space_expr fr)
 
+
+structure timestamped_geom3d_transform_var 
+  {fr : time_frame_expr} (ts : time_space_expr fr) {f1 : geom3d_frame_expr} (sp1 : geom3d_space_expr f1) {f2 : geom3d_frame_expr} 
+    (sp2 : geom3d_space_expr f2)  extends var
+
+inductive timestamped_geom3d_transform_expr 
+  : Π {fr : time_frame_expr} (ts : time_space_expr fr), 
+    Π {f1 : geom3d_frame_expr} (sp1 : geom3d_space_expr f1), Π {f2 : geom3d_frame_expr} (sp2 : geom3d_space_expr f2), Type 1
+| lit {fr : time_frame_expr} {ts : time_space_expr fr} {f1 : geom3d_frame_expr} 
+    {sp1 : geom3d_space_expr f1} {f2 : geom3d_frame_expr} {sp2 : geom3d_space_expr f2}
+  (l : timestamped ts.value (geom3d_transform sp1.value sp2.value)): timestamped_geom3d_transform_expr ts sp1 sp2
+| lit_time {fr : time_frame_expr} {ts : time_space_expr fr} {f1 : geom3d_frame_expr} 
+    {sp1 : geom3d_space_expr f1} {f2 : geom3d_frame_expr} {sp2 : geom3d_space_expr f2}
+  (te : time_expr ts) (pe : geom3d_transform_expr sp1 sp2): timestamped_geom3d_transform_expr ts sp1 sp2
+
+class timestamped_geom3d_transform_has_lit 
+  {fr : time_frame_expr} (ts : time_space_expr fr)
+  {f1 : geom3d_frame_expr} (sp1 : geom3d_space_expr f1) {f2 : geom3d_frame_expr} (sp2 : geom3d_space_expr f2) := 
+  (cast : timestamped ts.value (geom3d_transform sp1.value sp2.value) → timestamped_geom3d_transform_expr ts sp1 sp2)
+
+notation `|`tlit`|` := timestamped_geom3d_transform_has_lit.cast tlit
+
+instance timestamped_geom3d_transform_lit 
+  {fr : time_frame_expr} (ts : time_space_expr fr) 
+  {f1 : geom3d_frame_expr} (sp1 : geom3d_space_expr f1) {f2 : geom3d_frame_expr} (sp2 : geom3d_space_expr f2)
+  : timestamped_geom3d_transform_has_lit ts sp1 sp2 := 
+  ⟨λt, timestamped_geom3d_transform_expr.lit t⟩
+
+
+abbreviation timestamped_geom3d_transform_env 
+  {fr : time_frame_expr} (ts : time_space_expr fr) {f1 : geom3d_frame_expr} (sp1 : geom3d_space_expr f1) {f2 : geom3d_frame_expr} 
+    (sp2 : geom3d_space_expr f2) :=
+  timestamped_geom3d_transform_var ts sp1 sp2 → 
+    timestamped ts.value (geom3d_transform sp1.value sp2.value)
+abbreviation timestamped_geom3d_transform_eval := 
+  Π{fr : time_frame_expr} (ts : time_space_expr fr),
+  Π{f1 : geom3d_frame_expr} (sp1 : geom3d_space_expr f1)
+   {f2 : geom3d_frame_expr} (sp2 : geom3d_space_expr f2) ,
+  timestamped_geom3d_transform_env ts sp1 sp2 → timestamped_geom3d_transform_expr ts sp1 sp2 → 
+    timestamped ts.value (geom3d_transform sp1.value sp2.value)
+
+
+noncomputable def default_timestamped_geom3d_transform_env 
+    {fr : time_frame_expr} (ts : time_space_expr fr) {f1 : geom3d_frame_expr} (sp1 : geom3d_space_expr f1) {f2 : geom3d_frame_expr} 
+    (sp2 : geom3d_space_expr f2) : timestamped_geom3d_transform_env ts sp1 sp2 := 
+  λv, @mk_default_timestamped fr.value ts.value (geom3d_transform sp1.value sp2.value) _
+    
+--set_option eqn_compiler.max_steps 16384
+noncomputable def default_timestamped_geom3d_transform_eval : timestamped_geom3d_transform_eval
+:= λtf ts gf gs gf2 gs2, λenv_, λexpr_, 
+   @mk_default_timestamped tf.value ts.value (geom3d_transform gs.value gs2.value) _
+
+
+noncomputable def static_timestamped_geom3d_transform_eval : timestamped_geom3d_transform_eval
+| tf ts gf gs gf2 gs2 env_ (timestamped_geom3d_transform_expr.lit p) := p
+| tf ts gf gs gf2 gs2 env_ (timestamped_geom3d_transform_expr.lit_time te pe) := ⟨te.value, pe.value⟩
+
+noncomputable def timestamped_geom3d_transform_expr.value
+    {fr : time_frame_expr} {ts : time_space_expr fr} {f1 : geom3d_frame_expr} 
+    {sp1 : geom3d_space_expr f1} {f2 : geom3d_frame_expr} {sp2 : geom3d_space_expr f2} 
+    (expr_ : timestamped_geom3d_transform_expr ts sp1 sp2)  
+    : timestamped ts.value (geom3d_transform sp1.value sp2.value) :=
+  (static_timestamped_geom3d_transform_eval ts sp1 sp2) (default_timestamped_geom3d_transform_env ts sp1 sp2) expr_
+
+
 structure geom3d_transform_series_var  
   {fr : time_frame_expr} (ts : time_space_expr fr) {f1 : geom3d_frame_expr} (sp1 : geom3d_space_expr f1) {f2 : geom3d_frame_expr} 
     (sp2 : geom3d_space_expr f2) extends var
@@ -34,6 +99,11 @@ inductive geom3d_transform_series_expr
     (ges : geom3d_transform_series_expr ts sp1 sp2) 
     (te : time_expr ts) (ge : geom3d_transform_expr sp1 sp2) 
     : geom3d_transform_series_expr ts sp1 sp2
+| update_ts {fr : time_frame_expr} {ts : time_space_expr fr} {f1 : geom3d_frame_expr} 
+    {sp1 : geom3d_space_expr f1} {f2 : geom3d_frame_expr} {sp2 : geom3d_space_expr f2} 
+    (ges : geom3d_transform_series_expr ts sp1 sp2) 
+    (te : timestamped_geom3d_transform_expr ts sp1 sp2) 
+    : geom3d_transform_series_expr ts sp1 sp2
 
 class geom3d_transform_series_has_lit 
   {fr : time_frame_expr} (ts : time_space_expr fr)
@@ -48,17 +118,30 @@ instance geom3d_transform_series_lit
   : geom3d_transform_series_has_lit ts sp1 sp2 := 
   ⟨λt, geom3d_transform_series_expr.lit t⟩
 
+class  timestamped_geom3d_transform_expr_has_maplit {tf : time_frame_expr} (ts : time_space_expr tf)
+  {f1 : geom3d_frame_expr} (sp1 : geom3d_space_expr f1) {f2 : geom3d_frame_expr} (sp2 : geom3d_space_expr f2):= 
+  (cast : time_expr ts → geom3d_transform_expr sp1 sp2 → timestamped_geom3d_transform_expr ts sp1 sp2)
+notation T`↦`E := timestamped_geom3d_transform_expr_has_maplit.cast T E
+notation |T,E| := timestamped_geom3d_transform_expr_has_maplit.case T E
+
+instance timestamped_geom3d_transform_expr_map_lit {tf : time_frame_expr} (ts : time_space_expr tf)
+  {f1 : geom3d_frame_expr} (sp1 : geom3d_space_expr f1) {f2 : geom3d_frame_expr} (sp2 : geom3d_space_expr f2)
+  : timestamped_geom3d_transform_expr_has_maplit ts sp1 sp2 := 
+  ⟨λte pe , timestamped_geom3d_transform_expr.lit_time te pe⟩
 
 
-class geom3d_transform_series_has_update{tf : time_frame_expr} (ts : time_space_expr tf)
+class geom3d_transform_series_has_updatets{tf : time_frame_expr} (ts : time_space_expr tf)
   {f1 : geom3d_frame_expr} (sp1 : geom3d_space_expr f1) {f2 : geom3d_frame_expr} (sp2 : geom3d_space_expr f2) := 
-  (cast : geom3d_transform_series_expr ts sp1 sp2 → time_expr ts → geom3d_transform_expr sp1 sp2 → geom3d_transform_series_expr ts sp1 sp2)
-notation S`[`T`↦`E`]` := geom3d_transform_series_has_update.cast S T E
+  (cast : geom3d_transform_series_expr ts sp1 sp2 → timestamped_geom3d_transform_expr ts sp1 sp2 → geom3d_transform_series_expr ts sp1 sp2)
+notation S`[`GES`]` := geom3d_transform_series_has_updatets.cast S GES
 
 instance geom3d_transform_series_update {tf : time_frame_expr} (ts : time_space_expr tf)
   {f1 : geom3d_frame_expr} (sp1 : geom3d_space_expr f1) {f2 : geom3d_frame_expr} (sp2 : geom3d_space_expr f2) 
-  : geom3d_transform_series_has_update ts  sp1 sp2 := 
-  ⟨λpes te pe, geom3d_transform_series_expr.update pes te pe⟩
+  : geom3d_transform_series_has_updatets ts  sp1 sp2 := 
+  ⟨λpes ges, geom3d_transform_series_expr.update_ts pes ges⟩
+
+
+
 
 abbreviation geom3d_transform_series_env 
   {fr : time_frame_expr} (ts : time_space_expr fr)
@@ -90,13 +173,18 @@ noncomputable def static_geom3d_transform_series_eval
 | tf ts gf gs gf2 gs2 env_ (geom3d_transform_series_expr.var v) := env_ v
 | tf ts gf gs gf2 gs2 env_ (geom3d_transform_series_expr.update ges te ge) :=
   ((static_geom3d_transform_series_eval ts gs gs2) (default_geom3d_transform_series_env ts gs gs2) ges)
-  .update te.value ge.value
+  .update ⟨te.value, ge.value⟩
+| tf ts gf gs gf2 gs2 env_ (geom3d_transform_series_expr.update_ts ges tse) :=
+  ((static_geom3d_transform_series_eval ts gs gs2) (default_geom3d_transform_series_env ts gs gs2) ges)
+  .update tse.value
+
 
 
 noncomputable def geom3d_transform_series_expr.value 
   {fr : time_frame_expr} {ts : time_space_expr fr}
   {f1 : geom3d_frame_expr} {sp1 : geom3d_space_expr f1} {f2 : geom3d_frame_expr} {sp2 : geom3d_space_expr f2}
-  (expr_ : geom3d_transform_series_expr ts sp1 sp2) : geom3d_transform_discrete ts.value sp1.value sp2.value :=
+  (expr_ : geom3d_transform_series_expr ts sp1 sp2) --: geom3d_transform_discrete ts.value sp1.value sp2.value 
+  :=
   ((static_geom3d_transform_series_eval ts sp1 sp2) (default_geom3d_transform_series_env ts sp1 sp2) expr_)
 
 variables 
@@ -206,6 +294,61 @@ notation `|`slit`|` := position3d_space_has_lit.cast slit
 instance position3d_space_lit {f : geom3d_frame_expr} : position3d_space_has_lit f := 
   ⟨λs, geom3d_space_expr.lit s⟩
 -/
+structure timestamped_pose3d_var {tf : time_frame_expr} (ts : time_space_expr tf) {f : geom3d_frame_expr} (sp : geom3d_space_expr f) extends var
+
+inductive timestamped_pose3d_expr : 
+  Π {tf : time_frame_expr} (ts : time_space_expr tf), 
+  Π {f : geom3d_frame_expr} (sp : geom3d_space_expr f), Type 1
+| lit {tf : time_frame_expr} {ts : time_space_expr tf} {f : geom3d_frame_expr}{sp : geom3d_space_expr f} 
+  (l : timestamped ts.value (pose3d sp.value)): timestamped_pose3d_expr ts sp
+| lit_time {tf : time_frame_expr} {ts : time_space_expr tf} {f : geom3d_frame_expr}{sp : geom3d_space_expr f} 
+  (te : time_expr ts) (pe : pose3d_expr sp): timestamped_pose3d_expr ts sp
+
+class timestamped_pose3d_expr_has_lit 
+  {fr : time_frame_expr} (ts : time_space_expr fr)
+  {f1 : geom3d_frame_expr} (sp1 : geom3d_space_expr f1)  := 
+  (cast : timestamped ts.value (pose3d sp1.value) → timestamped_pose3d_expr ts sp1)
+
+notation `|`tlit`|` := timestamped_pose3d_expr_has_lit.cast tlit
+
+instance timestamped_pose3d_expr_lit 
+  {fr : time_frame_expr} (ts : time_space_expr fr) 
+  {f1 : geom3d_frame_expr} (sp1 : geom3d_space_expr f1) 
+  : timestamped_pose3d_expr_has_lit ts sp1 := 
+  ⟨λt, timestamped_pose3d_expr.lit t⟩
+
+abbreviation timestamped_pose3d_env {tf : time_frame_expr} (ts : time_space_expr tf) {f : geom3d_frame_expr} (sp : geom3d_space_expr f) :=
+  timestamped_pose3d_var ts sp → 
+    timestamped ts.value (pose3d sp.value)
+abbreviation timestamped_pose3d_eval := 
+            Π {tf : time_frame_expr} (ts : time_space_expr tf), 
+            Π{f : geom3d_frame_expr} (sp : geom3d_space_expr f),
+  timestamped_pose3d_env ts sp → timestamped_pose3d_expr ts sp → 
+    timestamped ts.value (pose3d sp.value)
+
+
+noncomputable def default_timestamped_pose3d_env 
+    {tf : time_frame_expr} (ts : time_space_expr tf) 
+    {f : geom3d_frame_expr} (sp : geom3d_space_expr f) : timestamped_pose3d_env ts sp := 
+  λv, @mk_default_timestamped tf.value ts.value (pose3d sp.value) _
+    
+--set_option eqn_compiler.max_steps 16384
+noncomputable def default_timestamped_pose3d_eval : timestamped_pose3d_eval
+:= λtf ts gf gs, λenv_, λexpr_, 
+   @mk_default_timestamped tf.value ts.value (pose3d gs.value) _
+
+
+noncomputable def static_timestamped_pose3d_eval : timestamped_pose3d_eval
+| tf ts gf gs env_ (timestamped_pose3d_expr.lit p) := p
+| tf ts gf gs env_ (timestamped_pose3d_expr.lit_time te pe) := ⟨te.value, pe.value⟩
+
+noncomputable def timestamped_pose3d_expr.value
+    {tf : time_frame_expr} {ts : time_space_expr tf} 
+     {f : geom3d_frame_expr} {sp : geom3d_space_expr f} (expr_ : timestamped_pose3d_expr ts sp)  
+    : timestamped ts.value (pose3d sp.value) :=
+  (static_timestamped_pose3d_eval ts sp) (default_timestamped_pose3d_env ts sp) expr_
+
+
 
 structure pose3d_series_var {tf : time_frame_expr} (ts : time_space_expr tf) {f : geom3d_frame_expr} (sp : geom3d_space_expr f) extends var
 
@@ -217,6 +360,15 @@ inductive pose3d_series_expr :
 | update 
   {tf : time_frame_expr} {ts : time_space_expr tf} {f : geom3d_frame_expr}{sp : geom3d_space_expr f}
   (pes : pose3d_series_expr ts sp) (te : time_expr ts) (pe : pose3d_expr sp) : pose3d_series_expr ts sp
+| update_ts
+  {tf : time_frame_expr} {ts : time_space_expr tf} {f : geom3d_frame_expr}{sp : geom3d_space_expr f}
+  (pes : pose3d_series_expr ts sp) (tse : timestamped_pose3d_expr ts sp) : pose3d_series_expr ts sp
+--| apply_timestamped_transform_to_lit
+--  {tf : time_frame_expr} {ts : time_space_expr tf} 
+--  {f1 : geom3d_frame_expr}{sp1 : geom3d_space_expr f1}
+--  {f2 : geom3d_frame_expr}{sp2 : geom3d_space_expr f2}
+--  (pes : pose3d_series_expr ts sp) (tse : timestamped_pose3d_expr ts sp) : pose3d_series_expr ts sp
+
 --| apply_latest_pose3d_lit {f2 : geom3d_frame_expr} {sp2 : geom3d_space_expr f2}
 --    (pe : pose3d_series_expr)
 --    (v : geom3d_transform_series_expr ts sp2 sp) 
@@ -236,18 +388,28 @@ instance pose3d_series_lit {tf : time_frame_expr} (ts : time_space_expr tf) {f :
 
 
 class pose3d_series_has_update{tf : time_frame_expr} (ts : time_space_expr tf)  {f : geom3d_frame_expr} (sp : geom3d_space_expr f):= 
-  (cast : pose3d_series_expr ts sp → time_expr ts → pose3d_expr sp → pose3d_series_expr ts sp)
-notation S`[`T`↦`E`]` := pose3d_series_has_update.cast S T E
+  (cast : pose3d_series_expr ts sp → timestamped_pose3d_expr ts sp → pose3d_series_expr ts sp)
+notation S`[`TE`]` := pose3d_series_has_update.cast S TE
+--notation S`[`T↦E`]`:= pose3d_series_has_update.cast S ⟨T,E\> 
 
 instance pose3d_series_update {tf : time_frame_expr} (ts : time_space_expr tf) {f : geom3d_frame_expr} (sp : geom3d_space_expr f) 
   : pose3d_series_has_update ts  sp := 
-  ⟨λpes te pe, pose3d_series_expr.update pes te pe⟩
+  ⟨λpes tes, pose3d_series_expr.update_ts pes tes⟩
+
+class  timestamped_pose3d_expr_has_maplit {tf : time_frame_expr} (ts : time_space_expr tf)  {f : geom3d_frame_expr} (sp : geom3d_space_expr f):= 
+  (cast : time_expr ts → pose3d_expr sp → timestamped_pose3d_expr ts sp)
+notation T`↦`E := timestamped_pose3d_expr_has_maplit.cast T E
+notation |T,E| := timestamped_pose3d_expr_has_maplit.case T E
+
+instance timestamped_pose3d_expr_map_lit {tf : time_frame_expr} (ts : time_space_expr tf) {f : geom3d_frame_expr} (sp : geom3d_space_expr f) 
+  : timestamped_pose3d_expr_has_maplit ts sp := 
+  ⟨λte pe , timestamped_pose3d_expr.lit_time te pe⟩
 
 variables 
  {f : geom3d_frame_expr} (sp : geom3d_space_expr f) 
   (pes : pose3d_series_expr ts sp) (te: time_expr ts) (pe:pose3d_expr sp)-- pose3d_series_expr ts sp)
 
-#check pes[te↦pe]
+#check pes[(te↦pe)]
 
 abbreviation pose3d_series_env {tf : time_frame_expr} (ts : time_space_expr tf) {f : geom3d_frame_expr} (sp : geom3d_space_expr f) :=
   pose3d_series_var ts sp → pose3d_discrete ts.value sp.value
@@ -273,7 +435,10 @@ noncomputable def static_pose3d_series_eval : pose3d_series_eval
 | tf ts gf gs env_ (pose3d_series_expr.lit p) := p
 | tf ts gf gs env_ (pose3d_series_expr.update ges te ge) :=
   ((static_pose3d_series_eval ts gs) (default_pose3d_series_env ts gs) ges)
-  .update te.value ge.value
+  .update ⟨te.value,ge.value⟩
+| tf ts gf gs env_ (pose3d_series_expr.update_ts ges tse) :=
+  ((static_pose3d_series_eval ts gs) (default_pose3d_series_env ts gs) ges)
+  .update tse.value
 
 
 noncomputable def pose3d_series_expr.value
