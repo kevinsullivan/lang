@@ -19,9 +19,9 @@ abbreviation time_frame_env :=
 abbreviation time_frame_eval :=
   time_frame_env → time_frame_expr → time_frame
 
-def default_frame_env : time_frame_env := 
+noncomputable def default_frame_env : time_frame_env := 
   λv, time_std_frame
-def default_frame_eval : time_frame_eval := λenv_, λexpr_, 
+noncomputable def default_frame_eval : time_frame_eval := λenv_, λexpr_, 
   begin
     cases expr_,
     exact expr_,
@@ -32,7 +32,7 @@ def static_frame_eval : time_frame_eval
 | env_ (time_frame_expr.lit f) := f
 | env_ (time_frame_expr.var v) := env_ v
 
-def time_frame_expr.value (expr_ : time_frame_expr) : time_frame :=
+noncomputable def time_frame_expr.value (expr_ : time_frame_expr) : time_frame :=
   (static_frame_eval) (default_frame_env) expr_
 
 structure time_space_var (f : time_frame_expr) extends var
@@ -48,9 +48,9 @@ abbreviation time_space_eval := Π(f : time_frame_expr),
   time_space_env → time_space_expr f → time_space f.value
 
 
-def default_space_env : time_space_env := 
+noncomputable def default_space_env : time_space_env := 
   λf, λv, mk_space f.value
-def default_space_eval : time_space_eval := λf, λenv_, λexpr_, 
+noncomputable def default_space_eval : time_space_eval := λf, λenv_, λexpr_, 
   begin
     cases expr_,
     exact expr_,
@@ -58,12 +58,12 @@ def default_space_eval : time_space_eval := λf, λenv_, λexpr_,
     exact mk_space f.value
   end
 
-def static_space_eval : time_space_eval 
+noncomputable def static_space_eval : time_space_eval 
 | f env_ (time_space_expr.lit sp) := sp
 | f env_ (time_space_expr.var v) := env_ f v
 | f env_ (time_space_expr.mk) := mk_space f.value
 
-def time_space_expr.value {f : time_frame_expr} (expr_ : time_space_expr f)  : time_space f.value :=
+noncomputable def time_space_expr.value {f : time_frame_expr} (expr_ : time_space_expr f)  : time_space f.value :=
   (static_space_eval f) (default_space_env) expr_
 
 structure transform_var  
@@ -104,15 +104,15 @@ abbreviation transform_eval
   transform_env sp1 sp2 → time_transform_expr sp1 sp2 → time_transform sp1.value sp2.value
 
 
-def default_transform_env 
+noncomputable def default_transform_env 
   {f1 : time_frame_expr} (sp1 : time_space_expr f1) {f2 : time_frame_expr} (sp2 : time_space_expr f2) : transform_env sp1 sp2:=
     λv, sp1.value.mk_time_transform_to sp2.value
 
-def default_transform_eval 
+noncomputable def default_transform_eval 
   {f1 : time_frame_expr} (sp1 : time_space_expr f1) {f2 : time_frame_expr} (sp2 : time_space_expr f2) : transform_eval sp1 sp2 :=
   λenv_, λexpr_,  sp1.value.mk_time_transform_to sp2.value
 
-def static_transform_eval 
+noncomputable def static_transform_eval 
   {f1 : time_frame_expr} (sp1 : time_space_expr f1) {f2 : time_frame_expr} (sp2 : time_space_expr f2) : transform_eval sp1 sp2 
 | env_ (time_transform_expr.lit tr) := tr
 | env_ (time_transform_expr.var v) := env_ v
@@ -120,7 +120,7 @@ def static_transform_eval
 | env_ (time_transform_expr.inv_lit t) := ⟨⟨(t.1.1).symm⟩⟩
 | env_ expr_ := default_transform_eval sp1 sp2 (default_transform_env sp1 sp2) expr_
 
-def time_transform_expr.value {f1 : time_frame_expr} {sp1 : time_space_expr f1} {f2 : time_frame_expr} {sp2 : time_space_expr f2}
+noncomputable def time_transform_expr.value {f1 : time_frame_expr} {sp1 : time_space_expr f1} {f2 : time_frame_expr} {sp2 : time_space_expr f2}
   (expr_ : time_transform_expr sp1 sp2) : time_transform sp1.value sp2.value :=
   ((static_transform_eval sp1 sp2) (default_transform_env sp1 sp2) expr_)
 
@@ -129,14 +129,14 @@ class transform_has_inv
   (inv : time_transform_expr sp1 sp2 → time_transform_expr sp2 sp1)
 notation tr⁻¹:= transform_has_inv.inv tr
 
-instance transform_inv {f1 : time_frame_expr} {sp1 : time_space_expr f1} {f2 : time_frame_expr} {sp2 : time_space_expr f2} 
+noncomputable instance transform_inv {f1 : time_frame_expr} {sp1 : time_space_expr f1} {f2 : time_frame_expr} {sp2 : time_space_expr f2} 
   : transform_has_inv sp1 sp2 := ⟨λt,
     begin
       let lit := t.value,
      exact (time_transform_expr.inv_lit lit),
     end⟩
 
-def time_transform_expr.trans 
+noncomputable def time_transform_expr.trans 
   {f1 : time_frame_expr} {sp1 : time_space_expr f1} {f2 : time_frame_expr} {sp2 : time_space_expr f2}
  {f3 : time_frame_expr} {sp3 : time_space_expr f3} (expr_ : time_transform_expr sp1 sp2) : time_transform_expr sp2 sp3 → time_transform_expr sp1 sp3 
  := λt2,
@@ -181,19 +181,24 @@ abbreviation duration_eval := Π{f : time_frame_expr} (sp : time_space_expr f),
 abbreviation time_eval := Π{f : time_frame_expr} (sp : time_space_expr f), 
   time_env sp → duration_env sp → time_expr sp → time sp.value
 
-def default_duration_env {f : time_frame_expr} (sp : time_space_expr f) : duration_env sp := λv, (mk_duration sp.value 1)
-def default_duration_eval : duration_eval  
+@[simp]
+noncomputable def default_duration_env {f : time_frame_expr} (sp : time_space_expr f) : duration_env sp := λv, (mk_duration sp.value 1)
+
+@[simp]
+noncomputable def default_duration_eval : duration_eval  
   := λf sp, λtenv_, λdenv_, λexpr_, 
   begin
     repeat {exact (mk_duration sp.value 1)}
   end
 
-def default_time_env {f : time_frame_expr} (sp : time_space_expr f) : time_env sp 
+@[simp]
+noncomputable def default_time_env {f : time_frame_expr} (sp : time_space_expr f) : time_env sp 
   := (λv, (mk_time sp.value 1))
 
 
 set_option eqn_compiler.max_steps 8192
-mutual def static_duration_eval, static_time_eval 
+@[simp, reducible]
+noncomputable mutual def static_duration_eval, static_time_eval 
 with static_duration_eval : duration_eval 
 | f sp tenv_ denv_ (duration_expr.zero) := 0
 | f sp tenv_ denv_ (duration_expr.one) := mk_duration sp.value 1
@@ -211,7 +216,8 @@ with static_time_eval : time_eval
 | f sp tenv_ denv_ (time_expr.add_dur_time d t) := (static_duration_eval sp tenv_ denv_ d) +ᵥ (static_time_eval sp tenv_ denv_ t)
 | f sp tenv_ denv_ (time_expr.apply_time_lit tr t) := tr.value.transform_time t
 
-def default_time_eval : time_eval := λf sp, λtenv_, λdenv_, λexpr_, 
+@[simp]
+noncomputable def default_time_eval : time_eval := λf sp, λtenv_, λdenv_, λexpr_, 
   begin
     cases expr_,
     exact expr_,
@@ -219,10 +225,12 @@ def default_time_eval : time_eval := λf sp, λtenv_, λdenv_, λexpr_,
     repeat {exact (mk_time sp.value 1)}
   end
 
-def time_expr.value {f : time_frame_expr} {sp : time_space_expr f} (expr_ : time_expr sp) : time sp.value :=
+@[simp]
+noncomputable def time_expr.value {f : time_frame_expr} {sp : time_space_expr f} (expr_ : time_expr sp) : time sp.value :=
   (static_time_eval sp) (default_time_env sp) (default_duration_env sp) expr_
 
-def duration_expr.value {f : time_frame_expr} {sp : time_space_expr f} (expr_ : duration_expr sp) : duration sp.value :=
+@[simp]
+noncomputable def duration_expr.value {f : time_frame_expr} {sp : time_space_expr f} (expr_ : duration_expr sp) : duration sp.value :=
   (static_duration_eval sp) (default_time_env sp) (default_duration_env sp) expr_
 
 class time_has_lit {f : time_frame_expr} (sp : time_space_expr f) := 
@@ -257,7 +265,7 @@ instance time_space_lit {f : time_frame_expr} : time_space_has_lit f :=
 variables  {f : time_frame_expr} {sp : time_space_expr f} 
 
 #check mk_frame
-def mk_time_frame_expr {f : time_frame_expr} {sp : time_space_expr f} (o : time_expr sp) (b : duration_expr sp) : time_frame_expr :=
+noncomputable def mk_time_frame_expr {f : time_frame_expr} {sp : time_space_expr f} (o : time_expr sp) (b : duration_expr sp) : time_frame_expr :=
   |(mk_time_frame o.value b.value)|
 
 def mk_time_space_expr (f : time_frame_expr) : time_space_expr f :=
@@ -292,7 +300,7 @@ class time_transform_has_complit
     time_transform sp2.value sp3.value →
     time_transform_expr sp1 sp3)
 notation tr1`∘`tr2 := time_transform_has_complit.cast tr1 tr2
-instance timetrcomplit
+noncomputable instance timetrcomplit
   {f1 : time_frame_expr} {sp1 : time_space_expr f1} 
   {f2 : time_frame_expr} {sp2 : time_space_expr f2}
   {f3 : time_frame_expr} {sp3 : time_space_expr f3} : time_transform_has_complit sp1 sp2 sp3 := 

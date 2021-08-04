@@ -16,15 +16,18 @@ abbreviation scalar_env := scalar_var → scalar
 abbreviation scalar_eval := 
   scalar_env  → scalar_expr → scalar
 
+@[simp]
 def default_scalar_env 
    : scalar_env :=
     λv, 1
 
+@[simp]
 def default_scalar_eval 
   : scalar_eval :=
   λenv_, λexpr_,  1
 
-def static_scalar_eval 
+@[simp]
+noncomputable def static_scalar_eval 
    : scalar_eval
 | env_ (scalar_expr.lit s) := s
 | env_ (scalar_expr.var v) := (env_ v)
@@ -32,7 +35,8 @@ def static_scalar_eval
 | env_ (scalar_expr.mul_scalar_scalar s1 s2) := (static_scalar_eval env_ s1) * (static_scalar_eval env_ s2)
 | env_ (scalar_expr.inv_scalar s1) := 1/(static_scalar_eval env_ s1)
 
-def scalar_expr.value
+@[simp]
+noncomputable def scalar_expr.value
   (expr_ : scalar_expr) : scalar :=
   static_scalar_eval default_scalar_env expr_
 

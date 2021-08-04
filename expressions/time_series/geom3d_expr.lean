@@ -57,21 +57,24 @@ abbreviation timestamped_geom3d_transform_eval :=
     timestamped ts.value (geom3d_transform sp1.value sp2.value)
 
 
+@[simp]
 noncomputable def default_timestamped_geom3d_transform_env 
     {fr : time_frame_expr} (ts : time_space_expr fr) {f1 : geom3d_frame_expr} (sp1 : geom3d_space_expr f1) {f2 : geom3d_frame_expr} 
     (sp2 : geom3d_space_expr f2) : timestamped_geom3d_transform_env ts sp1 sp2 := 
   λv, @mk_default_timestamped fr.value ts.value (geom3d_transform sp1.value sp2.value) _
     
 --set_option eqn_compiler.max_steps 16384
+@[simp]
 noncomputable def default_timestamped_geom3d_transform_eval : timestamped_geom3d_transform_eval
 := λtf ts gf gs gf2 gs2, λenv_, λexpr_, 
    @mk_default_timestamped tf.value ts.value (geom3d_transform gs.value gs2.value) _
 
-
+@[simp]
 noncomputable def static_timestamped_geom3d_transform_eval : timestamped_geom3d_transform_eval
 | tf ts gf gs gf2 gs2 env_ (timestamped_geom3d_transform_expr.lit p) := p
 | tf ts gf gs gf2 gs2 env_ (timestamped_geom3d_transform_expr.lit_time te pe) := ⟨te.value, pe.value⟩
 
+@[simp]
 noncomputable def timestamped_geom3d_transform_expr.value
     {fr : time_frame_expr} {ts : time_space_expr fr} {f1 : geom3d_frame_expr} 
     {sp1 : geom3d_space_expr f1} {f2 : geom3d_frame_expr} {sp2 : geom3d_space_expr f2} 
@@ -155,16 +158,19 @@ abbreviation geom3d_transform_series_eval :=
   geom3d_transform_series_env ts sp1 sp2 → geom3d_transform_series_expr ts sp1 sp2 → geom3d_transform_discrete ts.value sp1.value sp2.value
 
 
+@[simp]
 noncomputable def default_geom3d_transform_series_env 
   {fr : time_frame_expr} (ts : time_space_expr fr)
   {f1 : geom3d_frame_expr} (sp1 : geom3d_space_expr f1) {f2 : geom3d_frame_expr} (sp2 : geom3d_space_expr f2) 
     : geom3d_transform_series_env ts sp1 sp2:=
     λv, @mk_geom3d_transform_discrete_empty fr.value ts.value f1.value sp1.value f2.value sp2.value-- (sp1.value).mk_geom3d_transform_to sp2.value
 
+@[simp]
 noncomputable def default_geom3d_transform_series_eval 
   : geom3d_transform_series_eval :=
   λtf ts gf gs gf2 gs2, λenv_, λexpr_,  @mk_geom3d_transform_discrete_empty _ ts.value _ gs.value _ gs2.value
 
+@[simp,reducible]
 noncomputable def static_geom3d_transform_series_eval 
  -- {fr : time_frame_expr} (ts : time_space_expr fr)
  -- {f1 : geom3d_frame_expr} (sp1 : geom3d_space_expr f1) {f2 : geom3d_frame_expr} (sp2 : geom3d_space_expr f2) 
@@ -180,6 +186,7 @@ noncomputable def static_geom3d_transform_series_eval
 
 
 
+@[simp]
 noncomputable def geom3d_transform_series_expr.value 
   {fr : time_frame_expr} {ts : time_space_expr fr}
   {f1 : geom3d_frame_expr} {sp1 : geom3d_space_expr f1} {f2 : geom3d_frame_expr} {sp2 : geom3d_space_expr f2}
@@ -327,21 +334,25 @@ abbreviation timestamped_pose3d_eval :=
     timestamped ts.value (pose3d sp.value)
 
 
+@[simp]
 noncomputable def default_timestamped_pose3d_env 
     {tf : time_frame_expr} (ts : time_space_expr tf) 
     {f : geom3d_frame_expr} (sp : geom3d_space_expr f) : timestamped_pose3d_env ts sp := 
   λv, @mk_default_timestamped tf.value ts.value (pose3d sp.value) _
     
 --set_option eqn_compiler.max_steps 16384
+@[simp]
 noncomputable def default_timestamped_pose3d_eval : timestamped_pose3d_eval
 := λtf ts gf gs, λenv_, λexpr_, 
    @mk_default_timestamped tf.value ts.value (pose3d gs.value) _
 
 
+@[simp]
 noncomputable def static_timestamped_pose3d_eval : timestamped_pose3d_eval
 | tf ts gf gs env_ (timestamped_pose3d_expr.lit p) := p
 | tf ts gf gs env_ (timestamped_pose3d_expr.lit_time te pe) := ⟨te.value, pe.value⟩
 
+@[simp]
 noncomputable def timestamped_pose3d_expr.value
     {tf : time_frame_expr} {ts : time_space_expr tf} 
      {f : geom3d_frame_expr} {sp : geom3d_space_expr f} (expr_ : timestamped_pose3d_expr ts sp)  
@@ -399,11 +410,22 @@ instance pose3d_series_update {tf : time_frame_expr} (ts : time_space_expr tf) {
 class  timestamped_pose3d_expr_has_maplit {tf : time_frame_expr} (ts : time_space_expr tf)  {f : geom3d_frame_expr} (sp : geom3d_space_expr f):= 
   (cast : time_expr ts → pose3d_expr sp → timestamped_pose3d_expr ts sp)
 notation T`↦`E := timestamped_pose3d_expr_has_maplit.cast T E
-notation |T,E| := timestamped_pose3d_expr_has_maplit.case T E
+notation `|`T`,`E`|` := timestamped_pose3d_expr_has_maplit.cast T E
 
 instance timestamped_pose3d_expr_map_lit {tf : time_frame_expr} (ts : time_space_expr tf) {f : geom3d_frame_expr} (sp : geom3d_space_expr f) 
   : timestamped_pose3d_expr_has_maplit ts sp := 
   ⟨λte pe , timestamped_pose3d_expr.lit_time te pe⟩
+
+
+class  timestamped_pose3d_expr_has_litlit {tf : time_frame_expr} (ts : time_space_expr tf)  {f : geom3d_frame_expr} (sp : geom3d_space_expr f):= 
+  (cast : time ts.value → pose3d sp.value → timestamped_pose3d_expr ts sp)
+notation T`↦`E := timestamped_pose3d_expr_has_litlit.cast T E
+notation `|`T`,`E`|` := timestamped_pose3d_expr_has_litlit.cast T E
+
+instance timestamped_pose3d_expr_litlit {tf : time_frame_expr} (ts : time_space_expr tf) {f : geom3d_frame_expr} (sp : geom3d_space_expr f) 
+  : timestamped_pose3d_expr_has_litlit ts sp := 
+  ⟨λt p , timestamped_pose3d_expr.lit_time (|t|) (|p|)⟩
+
 
 variables 
  {f : geom3d_frame_expr} (sp : geom3d_space_expr f) 
@@ -420,17 +442,20 @@ abbreviation pose3d_series_eval :=
     pose3d_discrete ts.value sp.value
 
 
+@[simp]
 noncomputable def default_pose3d_series_env 
     {tf : time_frame_expr} (ts : time_space_expr tf) 
     {f : geom3d_frame_expr} (sp : geom3d_space_expr f) : pose3d_series_env ts sp := 
   λv, @mk_pose3d_discrete_empty tf.value ts.value f.value sp.value
     
 --set_option eqn_compiler.max_steps 16384
+@[simp]
 noncomputable def default_pose3d_series_eval : pose3d_series_eval
 := λtf ts gf gs, λenv_, λexpr_, 
    @mk_pose3d_discrete_empty tf.value ts.value gf.value gs.value
 
 
+@[simp]
 noncomputable def static_pose3d_series_eval : pose3d_series_eval
 | tf ts gf gs env_ (pose3d_series_expr.lit p) := p
 | tf ts gf gs env_ (pose3d_series_expr.update ges te ge) :=
@@ -440,7 +465,7 @@ noncomputable def static_pose3d_series_eval : pose3d_series_eval
   ((static_pose3d_series_eval ts gs) (default_pose3d_series_env ts gs) ges)
   .update tse.value
 
-
+@[simp]
 noncomputable def pose3d_series_expr.value
     {tf : time_frame_expr} {ts : time_space_expr tf} 
      {f : geom3d_frame_expr} {sp : geom3d_space_expr f} (expr_ : pose3d_series_expr ts sp)  
